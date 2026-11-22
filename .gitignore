@@ -1,0 +1,5 @@
+# Built output – Render runs `python3 build.py` to create it
+public/
+__pycache__/
+.DS_Store
+.claude/

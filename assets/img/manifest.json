@@ -1,0 +1,679 @@
+{
+ "arena-20x40-federal-qld": {
+  "file": "arena-20x40-federal-qld.jpg",
+  "h": 960,
+  "thumb": "arena-20x40-federal-qld-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "arena-20x40-north-maclean-qld": {
+  "file": "arena-20x40-north-maclean-qld.jpg",
+  "h": 960,
+  "thumb": "arena-20x40-north-maclean-qld-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "arena-20x60-beaudesert-qld": {
+  "file": "arena-20x60-beaudesert-qld.jpg",
+  "h": 960,
+  "thumb": "arena-20x60-beaudesert-qld-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "arena-20x60-rosewood-qld": {
+  "file": "arena-20x60-rosewood-qld.jpg",
+  "h": 960,
+  "thumb": "arena-20x60-rosewood-qld-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "arena-20x60-tamborine-qld": {
+  "file": "arena-20x60-tamborine-qld.jpg",
+  "h": 960,
+  "thumb": "arena-20x60-tamborine-qld-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "arena-25x60-hannam-vale-nsw": {
+  "file": "arena-25x60-hannam-vale-nsw.jpg",
+  "h": 960,
+  "thumb": "arena-25x60-hannam-vale-nsw-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "arena-30x60-bli-bli-qld": {
+  "file": "arena-30x60-bli-bli-qld.jpg",
+  "h": 960,
+  "thumb": "arena-30x60-bli-bli-qld-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "arena-35x35-uralla-nsw": {
+  "file": "arena-35x35-uralla-nsw.jpg",
+  "h": 960,
+  "thumb": "arena-35x35-uralla-nsw-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "arena-40x80-mt-walker-qld": {
+  "file": "arena-40x80-mt-walker-qld.jpg",
+  "h": 1200,
+  "thumb": "arena-40x80-mt-walker-qld-800.jpg",
+  "tw": 800,
+  "w": 1600
+ },
+ "arena-boonah-showgrounds-qld": {
+  "file": "arena-boonah-showgrounds-qld.jpg",
+  "h": 480,
+  "w": 640
+ },
+ "arena-maintenance-1": {
+  "file": "arena-maintenance-1.jpg",
+  "h": 720,
+  "thumb": "arena-maintenance-1-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "arena-maintenance-2": {
+  "file": "arena-maintenance-2.jpg",
+  "h": 720,
+  "thumb": "arena-maintenance-2-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "arena-maintenance-3": {
+  "file": "arena-maintenance-3.jpg",
+  "h": 720,
+  "thumb": "arena-maintenance-3-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "arena-rebuild-20x60-logan-village-qld": {
+  "file": "arena-rebuild-20x60-logan-village-qld.jpg",
+  "h": 960,
+  "thumb": "arena-rebuild-20x60-logan-village-qld-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "arena-rebuild-20x60-north-maclean-qld": {
+  "file": "arena-rebuild-20x60-north-maclean-qld.jpg",
+  "h": 960,
+  "thumb": "arena-rebuild-20x60-north-maclean-qld-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "arena-rebuild-20x60-veresdale-qld": {
+  "file": "arena-rebuild-20x60-veresdale-qld.jpg",
+  "h": 1200,
+  "thumb": "arena-rebuild-20x60-veresdale-qld-800.jpg",
+  "tw": 800,
+  "w": 1600
+ },
+ "arena-surface-highvale": {
+  "file": "arena-surface-highvale.jpg",
+  "h": 640,
+  "thumb": "arena-surface-highvale-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "arena-under-construction": {
+  "file": "arena-under-construction.jpg",
+  "h": 720,
+  "thumb": "arena-under-construction-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "arena-under-roof-walcha-nsw": {
+  "file": "arena-under-roof-walcha-nsw.jpg",
+  "h": 960,
+  "thumb": "arena-under-roof-walcha-nsw-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "arena-with-jumps-estate": {
+  "file": "arena-with-jumps-estate.jpg",
+  "h": 366,
+  "w": 650
+ },
+ "campdraft-arena-charlwood-qld": {
+  "file": "campdraft-arena-charlwood-qld.jpg",
+  "h": 768,
+  "thumb": "campdraft-arena-charlwood-qld-800.jpg",
+  "tw": 800,
+  "w": 1024
+ },
+ "client-andrew-cooper-eventing": {
+  "file": "client-andrew-cooper-eventing.png",
+  "h": 225,
+  "w": 225
+ },
+ "client-aprda": {
+  "file": "client-aprda.png",
+  "h": 159,
+  "w": 318
+ },
+ "client-boonah-show-society": {
+  "file": "client-boonah-show-society.png",
+  "h": 212,
+  "w": 238
+ },
+ "client-brookfield-horse-pony-club": {
+  "file": "client-brookfield-horse-pony-club.png",
+  "h": 348,
+  "w": 420
+ },
+ "client-brookfield-show-society": {
+  "file": "client-brookfield-show-society.png",
+  "h": 373,
+  "w": 420
+ },
+ "client-cherbon-waters": {
+  "file": "client-cherbon-waters.png",
+  "h": 123,
+  "w": 161
+ },
+ "client-city-of-gold-coast": {
+  "file": "client-city-of-gold-coast.png",
+  "h": 142,
+  "w": 337
+ },
+ "client-crestline-equestrian": {
+  "file": "client-crestline-equestrian.png",
+  "h": 234,
+  "w": 420
+ },
+ "client-darra-oxley-pony-club": {
+  "file": "client-darra-oxley-pony-club.png",
+  "h": 225,
+  "w": 225
+ },
+ "client-elysian-fields": {
+  "file": "client-elysian-fields.png",
+  "h": 130,
+  "w": 130
+ },
+ "client-gt-sporthorses": {
+  "file": "client-gt-sporthorses.png",
+  "h": 199,
+  "w": 253
+ },
+ "client-kolora-lodge": {
+  "file": "client-kolora-lodge.png",
+  "h": 130,
+  "w": 130
+ },
+ "client-ksec-kilkivan": {
+  "file": "client-ksec-kilkivan.png",
+  "h": 179,
+  "w": 281
+ },
+ "client-larapinta-equestrian": {
+  "file": "client-larapinta-equestrian.png",
+  "h": 85,
+  "w": 101
+ },
+ "client-nicole-tough-dressage": {
+  "file": "client-nicole-tough-dressage.png",
+  "h": 205,
+  "w": 200
+ },
+ "client-qsec": {
+  "file": "client-qsec.png",
+  "h": 233,
+  "w": 420
+ },
+ "client-rda-samford": {
+  "file": "client-rda-samford.png",
+  "h": 352,
+  "w": 380
+ },
+ "client-rivergum-park": {
+  "file": "client-rivergum-park.png",
+  "h": 123,
+  "w": 420
+ },
+ "client-spc-equestrian-centre": {
+  "file": "client-spc-equestrian-centre.png",
+  "h": 225,
+  "w": 225
+ },
+ "client-sunshine-coast-council": {
+  "file": "client-sunshine-coast-council.png",
+  "h": 136,
+  "w": 369
+ },
+ "dressage-arena-construction": {
+  "file": "dressage-arena-construction.jpg",
+  "h": 768,
+  "thumb": "dressage-arena-construction-800.jpg",
+  "tw": 800,
+  "w": 1024
+ },
+ "dressage-arena-extension-1": {
+  "file": "dressage-arena-extension-1.jpg",
+  "h": 720,
+  "thumb": "dressage-arena-extension-1-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "dressage-arena-extension-2": {
+  "file": "dressage-arena-extension-2.jpg",
+  "h": 720,
+  "thumb": "dressage-arena-extension-2-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "dressage-arena-extension-3": {
+  "file": "dressage-arena-extension-3.jpg",
+  "h": 720,
+  "thumb": "dressage-arena-extension-3-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "dressage-arena-rebuild-1": {
+  "file": "dressage-arena-rebuild-1.jpg",
+  "h": 720,
+  "thumb": "dressage-arena-rebuild-1-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "dressage-arena-rebuild-2": {
+  "file": "dressage-arena-rebuild-2.jpg",
+  "h": 720,
+  "thumb": "dressage-arena-rebuild-2-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "dressage-arena-rebuild-3": {
+  "file": "dressage-arena-rebuild-3.jpg",
+  "h": 720,
+  "thumb": "dressage-arena-rebuild-3-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "dressage-arena-rebuild-4": {
+  "file": "dressage-arena-rebuild-4.jpg",
+  "h": 720,
+  "thumb": "dressage-arena-rebuild-4-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "dressage-arena-rebuild-5": {
+  "file": "dressage-arena-rebuild-5.jpg",
+  "h": 720,
+  "thumb": "dressage-arena-rebuild-5-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "eld-arena-facility": {
+  "file": "eld-arena-facility.jpg",
+  "h": 258,
+  "w": 490
+ },
+ "eld-logo": {
+  "file": "eld-logo.png",
+  "h": 308,
+  "w": 692
+ },
+ "flood-beaudesert-2017-after": {
+  "file": "flood-beaudesert-2017-after.jpg",
+  "h": 540,
+  "w": 720
+ },
+ "flood-beaudesert-2017-during": {
+  "file": "flood-beaudesert-2017-during.jpg",
+  "h": 1280,
+  "thumb": "flood-beaudesert-2017-during-800.jpg",
+  "tw": 600,
+  "w": 960
+ },
+ "flood-prone-arena-carbrook": {
+  "file": "flood-prone-arena-carbrook.jpg",
+  "h": 540,
+  "w": 720
+ },
+ "flood-prone-arena-lismore-1": {
+  "file": "flood-prone-arena-lismore-1.jpg",
+  "h": 1200,
+  "thumb": "flood-prone-arena-lismore-1-800.jpg",
+  "tw": 800,
+  "w": 1600
+ },
+ "flood-prone-arena-lismore-2": {
+  "file": "flood-prone-arena-lismore-2.jpg",
+  "h": 1280,
+  "thumb": "flood-prone-arena-lismore-2-800.jpg",
+  "tw": 600,
+  "w": 960
+ },
+ "grass-verge": {
+  "file": "grass-verge.jpg",
+  "h": 1200,
+  "thumb": "grass-verge-800.jpg",
+  "tw": 800,
+  "w": 1600
+ },
+ "hero-arena-corinda": {
+  "file": "hero-arena-corinda.jpg",
+  "h": 1080,
+  "thumb": "hero-arena-corinda-800.jpg",
+  "tw": 800,
+  "w": 1440
+ },
+ "indoor-arena-boonah-showgrounds-qld": {
+  "file": "indoor-arena-boonah-showgrounds-qld.jpg",
+  "h": 1200,
+  "thumb": "indoor-arena-boonah-showgrounds-qld-800.jpg",
+  "tw": 800,
+  "w": 1600
+ },
+ "indoor-arena-boonah-showgrounds-qld-2": {
+  "file": "indoor-arena-boonah-showgrounds-qld-2.jpg",
+  "h": 1200,
+  "thumb": "indoor-arena-boonah-showgrounds-qld-2-800.jpg",
+  "tw": 800,
+  "w": 1600
+ },
+ "indoor-arena-construction": {
+  "file": "indoor-arena-construction.jpg",
+  "h": 1200,
+  "thumb": "indoor-arena-construction-800.jpg",
+  "tw": 800,
+  "w": 1600
+ },
+ "indoor-arena-eld-signage": {
+  "file": "indoor-arena-eld-signage.jpg",
+  "h": 720,
+  "thumb": "indoor-arena-eld-signage-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "indoor-arena-huntingdon-nsw": {
+  "file": "indoor-arena-huntingdon-nsw.jpg",
+  "h": 1200,
+  "thumb": "indoor-arena-huntingdon-nsw-800.jpg",
+  "tw": 800,
+  "w": 1600
+ },
+ "indoor-arena-lit": {
+  "file": "indoor-arena-lit.jpg",
+  "h": 720,
+  "thumb": "indoor-arena-lit-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "indoor-arena-new-shed": {
+  "file": "indoor-arena-new-shed.jpg",
+  "h": 720,
+  "thumb": "indoor-arena-new-shed-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "indoor-arena-surface": {
+  "file": "indoor-arena-surface.jpg",
+  "h": 1200,
+  "thumb": "indoor-arena-surface-800.jpg",
+  "tw": 800,
+  "w": 1600
+ },
+ "indoor-arena-upgrade-nambour-qld": {
+  "file": "indoor-arena-upgrade-nambour-qld.jpg",
+  "h": 960,
+  "thumb": "indoor-arena-upgrade-nambour-qld-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "indoor-boonah-showgrounds-qld-3": {
+  "file": "indoor-boonah-showgrounds-qld-3.jpg",
+  "h": 1600,
+  "thumb": "indoor-boonah-showgrounds-qld-3-800.jpg",
+  "tw": 600,
+  "w": 1200
+ },
+ "indoor-reining-arena-maudsland-qld": {
+  "file": "indoor-reining-arena-maudsland-qld.jpg",
+  "h": 768,
+  "thumb": "indoor-reining-arena-maudsland-qld-800.jpg",
+  "tw": 800,
+  "w": 1024
+ },
+ "logo-history-1": {
+  "file": "logo-history-1.png",
+  "h": 160,
+  "w": 153
+ },
+ "logo-history-2": {
+  "file": "logo-history-2.png",
+  "h": 159,
+  "w": 300
+ },
+ "logo-history-3": {
+  "file": "logo-history-3.png",
+  "h": 158,
+  "w": 300
+ },
+ "news-2021-done": {
+  "file": "news-2021-done.jpg",
+  "h": 224,
+  "w": 370
+ },
+ "news-christmas-2020": {
+  "file": "news-christmas-2020.jpg",
+  "h": 135,
+  "w": 208
+ },
+ "news-closure-2021": {
+  "file": "news-closure-2021.jpg",
+  "h": 224,
+  "w": 370
+ },
+ "news-closure-2022": {
+  "file": "news-closure-2022.jpg",
+  "h": 200,
+  "w": 400
+ },
+ "news-december-2020": {
+  "file": "news-december-2020.jpg",
+  "h": 135,
+  "w": 208
+ },
+ "news-easter": {
+  "file": "news-easter.jpg",
+  "h": 135,
+  "w": 208
+ },
+ "news-equitana-2022": {
+  "file": "news-equitana-2022.jpg",
+  "h": 951,
+  "thumb": "news-equitana-2022-800.jpg",
+  "tw": 800,
+  "w": 1600
+ },
+ "news-mid-2022": {
+  "file": "news-mid-2022.jpg",
+  "h": 224,
+  "w": 370
+ },
+ "news-november-2020": {
+  "file": "news-november-2020.jpg",
+  "h": 135,
+  "w": 208
+ },
+ "news-third-decade-2020": {
+  "file": "news-third-decade-2020.jpg",
+  "h": 135,
+  "w": 208
+ },
+ "news-third-decade-2021": {
+  "file": "news-third-decade-2021.jpg",
+  "h": 135,
+  "w": 208
+ },
+ "open-sided-arena": {
+  "file": "open-sided-arena.jpg",
+  "h": 720,
+  "thumb": "open-sided-arena-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "outdoor-arena-1": {
+  "file": "outdoor-arena-1.jpg",
+  "h": 720,
+  "thumb": "outdoor-arena-1-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "outdoor-arena-5": {
+  "file": "outdoor-arena-5.jpg",
+  "h": 720,
+  "thumb": "outdoor-arena-5-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "outdoor-arena-6": {
+  "file": "outdoor-arena-6.jpg",
+  "h": 720,
+  "thumb": "outdoor-arena-6-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "polo-elysian-fields-canungra": {
+  "file": "polo-elysian-fields-canungra.jpg",
+  "h": 169,
+  "w": 299
+ },
+ "polo-field-larapinta": {
+  "file": "polo-field-larapinta.jpg",
+  "h": 720,
+  "thumb": "polo-field-larapinta-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "qsec-indoor-arena-caboolture-qld": {
+  "file": "qsec-indoor-arena-caboolture-qld.jpg",
+  "h": 768,
+  "thumb": "qsec-indoor-arena-caboolture-qld-800.jpg",
+  "tw": 800,
+  "w": 1024
+ },
+ "qsec-indoor-warm-up-arena-caboolture-qld": {
+  "file": "qsec-indoor-warm-up-arena-caboolture-qld.jpg",
+  "h": 720,
+  "thumb": "qsec-indoor-warm-up-arena-caboolture-qld-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "reining-arena-35x70-belli-park-qld": {
+  "file": "reining-arena-35x70-belli-park-qld.jpg",
+  "h": 960,
+  "thumb": "reining-arena-35x70-belli-park-qld-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "rubble-drain": {
+  "file": "rubble-drain.jpg",
+  "h": 1200,
+  "thumb": "rubble-drain-800.jpg",
+  "tw": 800,
+  "w": 1600
+ },
+ "shed-boonah-showgrounds-qld": {
+  "file": "shed-boonah-showgrounds-qld.jpg",
+  "h": 960,
+  "thumb": "shed-boonah-showgrounds-qld-800.jpg",
+  "tw": 800,
+  "w": 1280
+ },
+ "spread-a-bar": {
+  "file": "spread-a-bar.jpg",
+  "h": 640,
+  "thumb": "spread-a-bar-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "spread-a-bar-in-use": {
+  "file": "spread-a-bar-in-use.jpg",
+  "h": 510,
+  "w": 770
+ },
+ "stable-building-belli-park-qld": {
+  "file": "stable-building-belli-park-qld.jpg",
+  "h": 1200,
+  "thumb": "stable-building-belli-park-qld-800.jpg",
+  "tw": 800,
+  "w": 1600
+ },
+ "temporary-arena-interschool-toowoomba-qld": {
+  "file": "temporary-arena-interschool-toowoomba-qld.jpg",
+  "h": 720,
+  "thumb": "temporary-arena-interschool-toowoomba-qld-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "temporary-arena-lockyer-gatton-qld": {
+  "file": "temporary-arena-lockyer-gatton-qld.jpg",
+  "h": 720,
+  "thumb": "temporary-arena-lockyer-gatton-qld-800.jpg",
+  "tw": 800,
+  "w": 960
+ },
+ "trees-december-2021-1": {
+  "file": "trees-december-2021-1.jpg",
+  "h": 1600,
+  "thumb": "trees-december-2021-1-800.jpg",
+  "tw": 600,
+  "w": 1200
+ },
+ "trees-december-2021-2": {
+  "file": "trees-december-2021-2.jpg",
+  "h": 1200,
+  "thumb": "trees-december-2021-2-800.jpg",
+  "tw": 800,
+  "w": 1600
+ },
+ "trees-march-2023-1": {
+  "file": "trees-march-2023-1.jpg",
+  "h": 1600,
+  "thumb": "trees-march-2023-1-800.jpg",
+  "tw": 600,
+  "w": 1200
+ },
+ "trees-march-2023-2": {
+  "file": "trees-march-2023-2.jpg",
+  "h": 1600,
+  "thumb": "trees-march-2023-2-800.jpg",
+  "tw": 600,
+  "w": 1200
+ },
+ "trees-planting": {
+  "file": "trees-planting.jpg",
+  "h": 1067,
+  "w": 800
+ },
+ "verge-cross-section-original": {
+  "file": "verge-cross-section-original.jpg",
+  "h": 150,
+  "w": 150
+ },
+ "verge-rock-wall": {
+  "file": "verge-rock-wall.jpg",
+  "h": 1200,
+  "thumb": "verge-rock-wall-800.jpg",
+  "tw": 800,
+  "w": 1600
+ },
+ "verge-sleeper-surround": {
+  "file": "verge-sleeper-surround.jpg",
+  "h": 1200,
+  "thumb": "verge-sleeper-surround-800.jpg",
+  "tw": 800,
+  "w": 1600
+ },
+ "walker-pad": {
+  "file": "walker-pad.jpg",
+  "h": 1200,
+  "thumb": "walker-pad-800.jpg",
+  "tw": 800,
+  "w": 1600
+ }
+}

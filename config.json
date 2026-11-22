@@ -1,0 +1,41 @@
+{
+  "site_url": "https://www.equestrianlanddevelopments.com",
+  "name": "Equestrian Land Developments",
+  "legal_name": "Equestrian Land Developments Pty Ltd",
+  "short_name": "ELD",
+  "tagline": "Specialising in the Design and Construction of Quality Equestrian Facilities.",
+  "founded": "2000",
+  "founder": "Todd Cunningham",
+  "contact_name": "Todd Cunningham",
+  "phone_display": "0407 149 637",
+  "phone_intl": "+61407149637",
+  "email": "info@equestrianlanddevelopments.com",
+  "postal": {
+    "line1": "PO Box 98",
+    "locality": "Cooroy",
+    "region": "QLD",
+    "postcode": "4563",
+    "country": "Australia",
+    "country_code": "AU"
+  },
+  "service_areas": ["South East Queensland", "Northern New South Wales", "Australia"],
+  "social": {
+    "facebook": "https://www.facebook.com/eldarenas",
+    "instagram": "https://www.instagram.com/eld_arenas"
+  },
+
+  "shop": {
+    "currency": "AUD",
+    "_help": "CHECKOUT SETUP: paste a Stripe Payment Link (https://buy.stripe.com/...) for each product, and/or the email address of your PayPal Business account. Leave blank to hide that button. If both are blank, the product page shows an 'Order by email' button instead.",
+    "paypal_business_email": "",
+    "products": {
+      "spread-a-bar-1m": { "stripe_payment_link": "" },
+      "spread-a-bar-1-5m": { "stripe_payment_link": "" }
+    }
+  },
+
+  "contact_form": {
+    "_help": "Optional. Paste a form endpoint (e.g. https://formspree.io/f/xxxx) to show an enquiry form on the Contact page. Leave blank to show phone/email only.",
+    "action": ""
+  }
+}
