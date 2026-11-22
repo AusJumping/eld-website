@@ -37,5 +37,14 @@
   "contact_form": {
     "_help": "Optional. Paste a form endpoint (e.g. https://formspree.io/f/xxxx) to show an enquiry form on the Contact page. Leave blank to show phone/email only.",
     "action": ""
+  },
+
+  "chat": {
+    "_help": "Website chat assistant. With 'endpoint' blank it runs in TRIAL mode: instant answers from the FAQ and pages, no AI, no cost. To switch on the AI assistant, deploy chat-server/ (see README) and paste its URL here, e.g. https://eld-chat.onrender.com/chat",
+    "enabled": true,
+    "endpoint": "",
+    "assistant_name": "ELD Assistant",
+    "greeting": "G'day! I'm the ELD website assistant. Ask me about arena construction, surfaces, maintenance or the Spread-a-bar®.",
+    "suggestions": ["How much does an arena cost?", "How long does a build take?", "Spread-a-bar prices", "Book a consultation"]
   }
 }

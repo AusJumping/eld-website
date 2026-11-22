@@ -88,6 +88,27 @@ The shop uses **hosted checkout**, so card details never touch this website and 
 
 If neither is set, the product pages show an **Order by email** button, so the site still works while you set up payments. Run `python3 build.py` after changing `config.json`.
 
+## Chat assistant
+
+Every page has an **Ask ELD** chat bubble (bottom right). It has two modes:
+
+- **Trial mode (current, free):** answers instantly from the FAQ page, `content/partials/chat-answers.md` and the page summaries. There's no AI and no cost. To teach it a new answer, add a question and answer to `chat-answers.md` and rebuild. If it can't find an answer, it gives Todd's phone number and email.
+- **AI mode:** the bubble sends the conversation to the small server in `chat-server/`, which asks Claude to answer **using only the website's own content** (`llms-full.txt`). The API key stays on the server and visitors never see it. If the server is ever down, the bubble quietly falls back to trial answers.
+
+**Turning on AI mode:**
+1. Get an API key from console.anthropic.com (Settings → API keys). Set a monthly spend limit there too.
+2. In Render: **New → Web Service** → choose the `eld-website` repo, then:
+   - Root Directory: `chat-server`
+   - Runtime: Python
+   - Build command: `pip install -r requirements.txt`
+   - Start command: `python app.py`
+   - Environment variable: `ANTHROPIC_API_KEY` = your key
+3. Copy the service's address (e.g. `https://eld-chat.onrender.com`) into `config.json` → `chat.endpoint` with `/chat` on the end, then run `python3 build.py` and push.
+
+Built-in safeguards: the server only answers requests from your own website, allows 30 messages per visitor per hour and 1,000 per day in total (change these with the `MAX_PER_IP_HOUR` / `MAX_PER_DAY` environment variables), never logs what visitors type, and caches the site content so repeat questions cost much less. It uses Claude Opus 5.5 at low effort for quick, conversational replies. If a question is ever declined, the request is automatically retried on a fallback model.
+
+The assistant's name, greeting and suggested questions are in `config.json` → `chat`. Set `"enabled": false` to remove the bubble.
+
 ## Hosting
 
 **Current setup: GitHub + Render.** The site deploys automatically: every push to the `main` branch on GitHub makes Render run `python3 build.py` and publish `public/`. `render.yaml` (created by the build) holds the Render settings, including redirects from old WordPress addresses. So to update the live site: edit `content/`, commit, push. You don't need to upload anything by hand.

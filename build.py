@@ -557,7 +557,7 @@ def footer():
 <address>{ipin} {legal}<br>{l1}<br>{loc} {reg} {pc}<br>{country}</address>
 <a class="btn btn-sand btn-small" href="/arena-construct/eld-construction-quotation-process/">Book a consultation</a></div>
 </div>
-<div class="container footer-bottom"><p>© {year} {legal}. All rights reserved.</p>
+<div class="footer-bottom"><p>© {year} {legal}. All rights reserved.</p>
 <p><a href="/contact-us/">Contact</a> · <a href="/employment/">Employment</a> · <a href="/faq/">FAQ</a> · <a href="/sitemap.xml">Sitemap</a> · <a href="/llms.txt">llms.txt</a></p></div>
 </footer>'''.format(tag=esc(C['tagline']), founded=C['founded'], fb=C['social']['facebook'], ig=C['social']['instagram'],
                     ifb=ICON['facebook'], iig=ICON['instagram'], c1=col('/arena-construct/'), c2=col('/maintenance-surface-products/'),
@@ -663,6 +663,18 @@ def video_ld(ctx, date):
 # ---------------------------------------------------------------- page shell
 CSS_V = hashlib.md5(open(os.path.join(ROOT, 'assets', 'css', 'site.css'), 'rb').read()).hexdigest()[:8]
 JS_V = hashlib.md5(open(os.path.join(ROOT, 'assets', 'js', 'site.js'), 'rb').read()).hexdigest()[:8]
+CHAT = C.get('chat', {})
+CHAT_V = hashlib.md5(open(os.path.join(ROOT, 'assets', 'js', 'chat.js'), 'rb').read()).hexdigest()[:8] if CHAT.get('enabled') else ''
+
+
+def chat_tags():
+    if not CHAT.get('enabled'):
+        return ''
+    cfg = {'endpoint': CHAT.get('endpoint', '').strip(), 'name': CHAT.get('assistant_name', 'ELD Assistant'),
+           'greeting': CHAT.get('greeting', ''), 'suggestions': CHAT.get('suggestions', []),
+           'phone': C['phone_display'], 'phoneIntl': C['phone_intl'], 'email': C['email'], 'kb': '/assets/chat-kb.json?v=' + TODAY}
+    return '<script>window.ELD_CHAT = {};</script>\n<script src="/assets/js/chat.js?v={}" defer></script>\n'.format(
+        json.dumps(cfg, ensure_ascii=False).replace('</', '<\\/'), CHAT_V)
 
 
 def shell(page, body, graph, body_class='', noindex=False, og_type='website'):
@@ -688,7 +700,7 @@ def shell(page, body, graph, body_class='', noindex=False, og_type='website'):
 <meta property="og:url" content="{canon}">
 <meta property="og:image" content="{ogimg}">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#1f3d17">
+<meta name="theme-color" content="#265e14">
 <link rel="icon" href="/assets/icons/favicon-32.jpg" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/icons/icon-192.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -707,11 +719,11 @@ def shell(page, body, graph, body_class='', noindex=False, og_type='website'):
 {footer}
 <div class="lightbox" hidden><button class="lb-close" type="button" aria-label="Close">×</button><button class="lb-prev" type="button" aria-label="Previous photo">‹</button><figure><img alt=""><figcaption></figcaption></figure><button class="lb-next" type="button" aria-label="Next photo">›</button></div>
 <script src="/assets/js/site.js?v={jsv}" defer></script>
-</body>
+{chat}</body>
 </html>
 '''.format(title=esc(title), desc=esc(desc), robots=robots, canon=absurl(page['url']), mdlink='' if noindex else '<link rel="alternate" type="text/markdown" href="{}index.md" title="Markdown version of this page">\n'.format(page['url']), ogt=og_type,
            name=esc(C['name']), ogimg=img_url(hero), cssv=CSS_V, jsv=JS_V, ld=ld, bc=body_class, header=header(page['url']),
-           body=body, footer=footer())
+           body=body, footer=footer(), chat=chat_tags())
 
 
 def write(url, content, name='index.html'):
@@ -1060,6 +1072,27 @@ def render_simple(url, title, body_html, noindex=True, desc=''):
 
 
 # ---------------------------------------------------------------- AI / SEO files
+def write_chat_kb():
+    """Knowledge file for the chat widget's trial mode (no AI): FAQ answers + page summaries."""
+    if not CHAT.get('enabled'):
+        return
+    faq_body = next(x for x in PAGES if x['url'] == '/faq/')['body']
+    extra = load(os.path.join(ROOT, 'content', 'partials', 'chat-answers.md'))['body']
+
+    def block(body):
+        inner = body.split('::: faq', 1)[1].split('\n:::', 1)[0]
+        return parse_faq(inner.strip('\n').split('\n'))
+    items = [{'q': q, 'a': a_html, 't': a_text} for q, a_html, a_text in block(faq_body) + block(extra)]
+    pages = []
+    for u, p in BY_URL.items():
+        if not p.get('title') or u in ('/',):
+            continue
+        heads = ' '.join(re.findall(r'^#{2,3} (.+)$', p.get('body', ''), flags=re.M))
+        pages.append({'url': u, 'title': p.get('nav_title') or p['title'], 'desc': p.get('lead') or p.get('description', ''), 'k': heads})
+    with open(os.path.join(OUT, 'assets', 'chat-kb.json'), 'w', encoding='utf-8') as f:
+        json.dump({'faq': items, 'pages': pages}, f, ensure_ascii=False)
+
+
 def write_ai_files(all_urls):
     by = BY_URL
     a = C['postal']
@@ -1192,6 +1225,7 @@ def main():
     shutil.rmtree(os.path.join(OUT, '404'))
     all_urls = ['/'] + [p['url'] for p in PAGES if p['url'] != '/'] + [p['url'] for p in PRODUCTS] + ['/news/'] + [p['url'] for p in POSTS]
     write_ai_files(all_urls)
+    write_chat_kb()
     write_redirects()
     n = len(glob.glob(os.path.join(OUT, '**', 'index.html'), recursive=True))
     print('Built {} pages into public/'.format(n))
