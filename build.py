@@ -7,7 +7,7 @@ No installs needed – just run:
     python3 build.py
 
 Then upload the contents of public/ to your web host.
-See README.md for how to edit pages, add news and set up Stripe / PayPal.
+See README.md for how to edit pages, add news and set up Stripe checkout.
 """
 import datetime
 import glob
@@ -793,7 +793,7 @@ def render_page(page):
                          'No wheels or tyres – no corrugations', 'Folds away for storage'])
         body = '''{}<div class="container section"><div class="prose prose--wide">{}</div>{}
 <ul class="ticks" role="list">{}</ul>
-<p class="secure-note">Secure checkout with Stripe or PayPal. Prices in Australian dollars.</p></div>'''.format(hero, content, product_cards(), feats)
+<p class="secure-note">Secure checkout by Stripe: card, Apple Pay or Google Pay. Prices in Australian dollars.</p></div>'''.format(hero, content, product_cards(), feats)
     else:
         body = '{}<div class="container page-grid"><article class="prose">{}</article>{}</div>'.format(hero, content, aside(page))
     write(page['url'], shell(page, body, graph, 'layout-' + layout))
@@ -806,20 +806,9 @@ def render_product(p):
     content = md(p['body'], ctx)
     conf = C['shop']['products'].get(p['key'], {})
     stripe = conf.get('stripe_payment_link', '').strip()
-    paypal = C['shop'].get('paypal_business_email', '').strip()
     buttons = []
     if stripe:
-        buttons.append('<a class="btn btn-primary btn-block btn-buy" href="{}">Buy now – pay by card</a>'.format(esc(stripe)))
-    if paypal:
-        buttons.append('''<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-<input type="hidden" name="cmd" value="_xclick"><input type="hidden" name="business" value="{}">
-<input type="hidden" name="item_name" value="{}"><input type="hidden" name="item_number" value="{}">
-<input type="hidden" name="amount" value="{:.2f}"><input type="hidden" name="currency_code" value="{}">
-<input type="hidden" name="undefined_quantity" value="1"><input type="hidden" name="no_shipping" value="2">
-<input type="hidden" name="return" value="{}"><input type="hidden" name="cancel_return" value="{}">
-<button class="btn btn-paypal btn-block" type="submit">Pay with <strong>PayPal</strong></button></form>'''.format(
-            esc(paypal), esc(p['title'].replace('®', '')), esc(p['sku']), float(p['price']), C['shop']['currency'],
-            absurl('/shop/thank-you/'), absurl(p['url'])))
+        buttons.append('<a class="btn btn-primary btn-block btn-buy" href="{}">Buy now<span class="btn-sub">Card, Apple Pay or Google Pay</span></a>'.format(esc(stripe)))
     if not buttons:
         WARN.append('no checkout configured for {} – showing "Order by email"'.format(p['key']))
         buttons.append('<a class="btn btn-primary btn-block" href="mailto:{}?subject=Order%3A%20{}">Order by email</a>'.format(
@@ -844,7 +833,7 @@ def render_product(p):
 <div class="sizes" aria-label="Choose a size"><span class="sizes-label">Width</span>{sizes}</div>
 <ul class="ticks" role="list">{feats}</ul>
 <div class="buy-actions">{buttons}</div>
-<p class="secure-note">Secure checkout. Questions before you buy? Call {who} on <a href="tel:{pi}">{pd}</a>.</p>
+<p class="secure-note">Secure checkout by Stripe. Questions before you buy? Call {who} on <a href="tel:{pi}">{pd}</a>.</p>
 </div></div></div>
 <div class="container page-grid"><article class="prose">{content}</article>
 <aside class="page-aside"><div class="aside-card"><h2>Also available</h2>{others}</div>

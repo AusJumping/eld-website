@@ -26,8 +26,7 @@
 
   "shop": {
     "currency": "AUD",
-    "_help": "CHECKOUT SETUP: paste a Stripe Payment Link (https://buy.stripe.com/...) for each product, and/or the email address of your PayPal Business account. Leave blank to hide that button. If both are blank, the product page shows an 'Order by email' button instead.",
-    "paypal_business_email": "",
+    "_help": "CHECKOUT SETUP: paste a Stripe Payment Link (https://buy.stripe.com/...) for each product (create them in the Stripe Dashboard under Payment Links). Card, Apple Pay and Google Pay are all handled by Stripe. If a link is blank, that product page shows an 'Order by email' button instead.",
     "products": {
       "spread-a-bar-1m": { "stripe_payment_link": "" },
       "spread-a-bar-1-5m": { "stripe_payment_link": "" }

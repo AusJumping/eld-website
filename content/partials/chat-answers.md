@@ -10,7 +10,7 @@ How do I book a consultation or get a quote? / book consultation / site visit / 
 ELD offers onsite consultations (fees apply, credited toward your arena construction if you proceed) and pre-purchase property inspections. Email [info@equestrianlanddevelopments.com](mailto:info@equestrianlanddevelopments.com?subject=Onsite%20consultation%20request) or call Todd on [0407 149 637](tel:+61407149637). [Consultation & quotation](/arena-construct/eld-construction-quotation-process/).
 
 How do I buy a Spread-a-bar? / buy / purchase / order / shop / spread-a-bar price / harrow / arena leveller / drag
-The **ELD Arena Spread-a-bar®** is $1,150 AUD for the [1m model](/product/eld-arena-spread-a-bar/) and $1,480 AUD for the [1.5m model](/product/eld-arena-spread-a-bar-1-5m/), with Australia-wide delivery. Other sizes can be made to order – email [info@equestrianlanddevelopments.com](mailto:info@equestrianlanddevelopments.com). [Visit the shop](/shop/).
+The **ELD Arena Spread-a-bar®** is $1,150 AUD for the [1m model](/product/eld-arena-spread-a-bar/) and $1,480 AUD for the [1.5m model](/product/eld-arena-spread-a-bar-1-5m/), with Australia-wide delivery. Order from the product page (secure Stripe checkout) or by email. Other sizes can be made to order – email [info@equestrianlanddevelopments.com](mailto:info@equestrianlanddevelopments.com). [Visit the shop](/shop/).
 
 Do you deliver? / delivery / shipping / postage / freight
 Yes – the Spread-a-bar® ships Australia-wide. For delivery details to your area, email [info@equestrianlanddevelopments.com](mailto:info@equestrianlanddevelopments.com) or call [0407 149 637](tel:+61407149637).

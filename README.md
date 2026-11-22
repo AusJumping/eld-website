@@ -11,7 +11,7 @@ A fast, modern, AI-friendly rebuild of equestrianlanddevelopments.com. It's a **
 | `content/products/*.md` | Shop products (price, size, SKU). |
 | `content/partials/product-body.md` | The Spread-a-bar® description shared by both product pages. |
 | `content/navigation.json` | The main menu. |
-| `config.json` | Phone, email, address, social links, **Stripe and PayPal settings**. |
+| `config.json` | Phone, email, address, social links, **Stripe checkout links**. |
 | `assets/` | Images, PDFs, video, CSS and JS. |
 | `build.py` | Turns everything above into the finished website. |
 | `public/` | **The finished website. Upload this folder's contents to your host.** |
@@ -73,20 +73,18 @@ Post text here…
 
 Put the originals somewhere, add a line to `tools/images.tsv` (`new-name<TAB>path`), then run `python3 tools/optimize_images.py "<folder containing the originals>"` (needs `pip install pillow` once). It creates web-sized copies in `assets/img/`.
 
-## Setting up the shop checkout (Stripe and/or PayPal)
+## Setting up the shop checkout (Stripe)
 
-The shop uses **hosted checkout**, so card details never touch this website and there's nothing to keep PCI-compliant.
+The shop uses **Stripe hosted checkout**, so card details never touch this website and there's nothing to keep PCI-compliant. Stripe's checkout page offers **card, Apple Pay and Google Pay** automatically. Apple Pay shows on iPhone, iPad and Mac (Safari) when the customer has a card in Apple Wallet, and Google Pay shows on Android and Chrome.
 
-**Stripe (recommended: cards, Apple Pay, Google Pay):**
-1. In the Stripe Dashboard → *Payment Links* → create one link per product (1m at $1,150 AUD, 1.5m at $1,480 AUD).
-2. In each link's options, turn on **collect shipping address** (and add a shipping rate if you charge delivery), and optionally **let customers adjust quantity**.
-3. Under *After payment*, set the redirect to `https://www.equestrianlanddevelopments.com/shop/thank-you/`.
-4. Paste each link into `config.json` → `shop.products.<product>.stripe_payment_link`.
+1. In the Stripe Dashboard → *Settings → Payment methods*, check that **Apple Pay** and **Google Pay** are turned on (they usually are by default).
+2. In *Payment Links*, create one link per product (1m at $1,150 AUD, 1.5m at $1,480 AUD).
+3. In each link's options, turn on **collect shipping address** (and add a shipping rate if you charge delivery), and optionally **let customers adjust quantity**.
+4. Under *After payment*, set the redirect to `https://www.equestrianlanddevelopments.com/shop/thank-you/`.
+5. Paste each link into `config.json` → `shop.products.<product>.stripe_payment_link`, then run `python3 build.py` (or push, and Render rebuilds).
+6. Test: open a product page on your iPhone in Safari, tap **Buy now** and check that the black Apple Pay button appears at the top of the checkout.
 
-**PayPal:**
-- Put your PayPal Business account email in `config.json` → `shop.paypal_business_email`. A "Pay with PayPal" button then appears on each product, with buyers' shipping address required.
-
-If neither is set, the product pages show an **Order by email** button, so the site still works while you set up payments. Run `python3 build.py` after changing `config.json`.
+If a product has no link yet, its page shows an **Order by email** button, so the site still works while you set up Stripe.
 
 ## Chat assistant
 
