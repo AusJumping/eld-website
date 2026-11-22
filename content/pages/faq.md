@@ -53,7 +53,7 @@ What disciplines do you build for?
 Dressage, show jumping and eventing, campdraft and reining (Western), competition and temporary competition arenas, polo and polocrosse fields, round yards, lunging rings and walker pads.
 
 What is the ELD Arena Spread-a-bar® and how much is it?
-A purpose-built arena maintenance implement designed by Todd Cunningham and made in Australia by Brisbane-based manufacturers. It has a flat edge on one side and 30mm harrow tines on the other, has no wheels, folds away for storage and can be towed by a mower, bike, ute or tractor. The **1m model is $1,150** and the **1.5m model is $1,480** (AUD), with Australia-wide delivery. Other sizes can be made to order. [Visit the shop](/shop/).
+A purpose-built arena maintenance implement designed by Todd Cunningham and made in Australia by Brisbane-based manufacturers. It has a flat edge on one side and 30mm harrow tines on the other, has no wheels, folds away for storage and can be towed by a mower, bike, ute or tractor. The **1m model is {{price:spread-a-bar-1m}}** and the **1.5m model is {{price:spread-a-bar-1-5m}}** (AUD), with Australia-wide delivery. Other sizes can be made to order. [Visit the shop](/shop/).
 
 How do I get a quote?
 Call Todd Cunningham on [0407 149 637](tel:+61407149637) or email [info@equestrianlanddevelopments.com](mailto:info@equestrianlanddevelopments.com).

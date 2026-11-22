@@ -26,12 +26,10 @@
 
   "shop": {
     "currency": "AUD",
-    "_help": "CHECKOUT SETUP: paste a Stripe Payment Link (https://buy.stripe.com/...) for each product (create them in the Stripe Dashboard under Payment Links). Card, Apple Pay and Google Pay are all handled by Stripe. If a link is blank, that product page shows an 'Order by email' button instead.",
-    "products": {
-      "spread-a-bar-1m": { "stripe_payment_link": "" },
-      "spread-a-bar-1-5m": { "stripe_payment_link": "" }
-    }
+    "_help": "Products, prices and Stripe links now live in content/shop.json (edit them in the website admin)."
   },
+
+  "admin_url": "https://eld-admin.onrender.com/admin",
 
   "contact_form": {
     "_help": "Optional. Paste a form endpoint (e.g. https://formspree.io/f/xxxx) to show an enquiry form on the Contact page. Leave blank to show phone/email only.",
@@ -39,7 +37,7 @@
   },
 
   "chat": {
-    "_help": "Website chat assistant. With 'endpoint' blank it runs in TRIAL mode: instant answers from the FAQ and pages, no AI, no cost. To switch on the AI assistant, deploy chat-server/ (see README) and paste its URL here, e.g. https://eld-chat.onrender.com/chat",
+    "_help": "Website chat assistant. With 'endpoint' blank it runs in TRIAL mode: instant answers from the FAQ and pages, no AI, no cost. To switch on the AI assistant, add ANTHROPIC_API_KEY to the eld-admin service on Render (see README) and put https://eld-admin.onrender.com/chat here",
     "enabled": true,
     "endpoint": "",
     "assistant_name": "ELD Assistant",

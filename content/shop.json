@@ -1,0 +1,21 @@
+{
+  "_help": "Shop products. Edit these in the website admin (Products tab) rather than by hand. Prices are in AUD. Paste each product's Stripe Payment Link (https://buy.stripe.com/...) to show the Buy now button; card, Apple Pay and Google Pay are handled by Stripe.",
+  "products": {
+    "spread-a-bar-1m": {
+      "url": "/product/eld-arena-spread-a-bar/",
+      "title": "ELD Arena Spread-a-bar® 1m",
+      "price": 1150,
+      "available": true,
+      "note": "",
+      "stripe_payment_link": ""
+    },
+    "spread-a-bar-1-5m": {
+      "url": "/product/eld-arena-spread-a-bar-1-5m/",
+      "title": "ELD Arena Spread-a-bar® 1.5m",
+      "price": 1480,
+      "available": true,
+      "note": "",
+      "stripe_payment_link": ""
+    }
+  }
+}

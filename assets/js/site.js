@@ -9,6 +9,24 @@
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
 
+  // Site notices (set in the admin): shown between their start/end dates in Queensland time; dismissible for the visit
+  var notices = document.querySelectorAll('.notice[data-notice]');
+  if (notices.length) {
+    var today, gone = {};
+    try { today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Brisbane', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); }
+    catch (e) { today = new Date(Date.now() + 10 * 3600e3).toISOString().slice(0, 10); }
+    try { gone = JSON.parse(sessionStorage.getItem('eld-notices') || '{}') || {}; } catch (e) {}
+    notices.forEach(function (n) {
+      var s = n.getAttribute('data-start'), e = n.getAttribute('data-end'), id = n.getAttribute('data-notice');
+      n.hidden = !!((s && today < s) || (e && today > e) || gone[id]);
+      var x = n.querySelector('.notice-close');
+      if (x) x.addEventListener('click', function () {
+        n.hidden = true; gone[id] = 1;
+        try { sessionStorage.setItem('eld-notices', JSON.stringify(gone)); } catch (err) {}
+      });
+    });
+  }
+
   // Mobile menu
   toggle.addEventListener('click', function () {
     document.documentElement.style.setProperty('--nav-top', Math.round(header.getBoundingClientRect().bottom) + 'px');

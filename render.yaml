@@ -6,7 +6,14 @@ services:
     buildCommand: python3 build.py
     staticPublishPath: ./public
     pullRequestPreviewsEnabled: false
+    buildFilter:
+      ignoredPaths:
+        - server/**
+        - README.md
     headers:
+      - path: /version.json
+        name: Cache-Control
+        value: no-store
       - path: /assets/*
         name: Cache-Control
         value: public, max-age=2592000
@@ -51,6 +58,12 @@ services:
         source: /wp-content/uploads/2022/12/ELD_Spread-a-bar_A4_2022.pdf
         destination: /assets/docs/ELD-Spread-a-bar-2022.pdf
       - type: redirect
+        source: /admin
+        destination: https://eld-admin.onrender.com/admin
+      - type: redirect
+        source: /admin/
+        destination: https://eld-admin.onrender.com/admin
+      - type: redirect
         source: /news/category/*
         destination: /news/
       - type: redirect
@@ -62,3 +75,25 @@ services:
       - type: redirect
         source: /product-category/*
         destination: /shop/
+
+  - type: web
+    name: eld-admin
+    runtime: python
+    plan: free
+    rootDir: server
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: GITHUB_REPO
+        value: AusJumping/eld-website
+      - key: SITE_URL
+        value: https://eld-website.onrender.com
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false

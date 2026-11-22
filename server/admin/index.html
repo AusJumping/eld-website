@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>ELD Website Admin</title>
+<link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-inner">
+    <div class="brand"><span class="brand-mark">ELD</span><span>Website admin</span></div>
+    <nav class="top-nav" id="top-nav" hidden>
+      <a id="view-site" href="#" target="_blank" rel="noopener">View website ↗</a>
+      <button type="button" class="link-btn" id="logout">Sign out</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <p id="loading" class="loading">Loading…</p>
+
+  <!-- Sign in -->
+  <section id="login" class="login card" hidden>
+    <h1>Sign in</h1>
+    <p class="muted">Update shop prices and website notices for equestrianlanddevelopments.com.</p>
+    <p id="setup-msg" class="alert alert--warn" hidden></p>
+    <form id="login-form">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <button class="btn btn-primary" type="submit">Sign in</button>
+      <p id="login-error" class="alert alert--error" role="alert" hidden></p>
+    </form>
+  </section>
+
+  <!-- Editor -->
+  <section id="app" hidden>
+    <div class="tabs" role="tablist" aria-label="What to edit">
+      <button type="button" role="tab" id="tab-btn-notices" aria-controls="tab-notices" aria-selected="true">Notices</button>
+      <button type="button" role="tab" id="tab-btn-products" aria-controls="tab-products" aria-selected="false">Products &amp; prices</button>
+    </div>
+
+    <div id="status" class="status" role="status" aria-live="polite" hidden></div>
+
+    <!-- Notices -->
+    <section id="tab-notices" role="tabpanel" aria-labelledby="tab-btn-notices">
+      <div class="intro">
+        <h1>Website notices</h1>
+        <p>Show a banner across the top of the website, for example a Christmas closure, office closure or delivery delay.
+          Set a start and end date and it appears and disappears by itself (Queensland time).</p>
+      </div>
+      <div class="quick">
+        <span>Start a new notice:</span>
+        <button type="button" class="chip" data-tpl="christmas">Christmas closure</button>
+        <button type="button" class="chip" data-tpl="office">Office closed</button>
+        <button type="button" class="chip" data-tpl="delivery">Delivery delay</button>
+        <button type="button" class="chip" data-tpl="blank">+ Blank notice</button>
+      </div>
+      <div id="notices" class="stack"></div>
+      <p id="no-notices" class="empty" hidden>No notices at the moment. Use the buttons above to add one.</p>
+      <div class="savebar"><span class="dirty" id="dirty-notices" hidden>Unsaved changes</span><button type="button" class="btn btn-primary" id="save-notices">Save notices</button></div>
+    </section>
+
+    <!-- Products -->
+    <section id="tab-products" role="tabpanel" aria-labelledby="tab-btn-products" hidden>
+      <div class="intro">
+        <h1>Products &amp; prices</h1>
+        <p>Change product names, prices and notes, mark a product as unavailable, or paste in its Stripe payment link.</p>
+      </div>
+      <div id="products" class="stack"></div>
+      <div class="savebar"><span class="dirty" id="dirty-products" hidden>Unsaved changes</span><button type="button" class="btn btn-primary" id="save-products">Save products</button></div>
+    </section>
+
+    <p class="foot muted">Changes go live on the website about 1–2 minutes after you save. Every change is kept in the website's history, so nothing is ever lost.</p>
+  </section>
+</main>
+
+<template id="notice-tpl">
+  <article class="card notice-card">
+    <div class="card-head">
+      <span class="badge" data-k="state"></span>
+      <label class="switch"><input type="checkbox" data-f="enabled"><span>Turned on</span></label>
+    </div>
+    <div class="preview" data-k="preview"><span data-k="pmsg"></span></div>
+    <label>Message <span class="muted" data-k="count"></span>
+      <textarea data-f="message" rows="2" maxlength="300" placeholder="e.g. Our office is closed from 20 December and reopens 5 January."></textarea></label>
+    <div class="grid2">
+      <label>Show from <span class="muted">(blank = straight away)</span><input type="date" data-f="start"></label>
+      <label>Until (last day shown) <span class="muted">(blank = until removed)</span><input type="date" data-f="end"></label>
+    </div>
+    <div class="grid2">
+      <label>Colour
+        <select data-f="style">
+          <option value="holiday">Gold – holidays &amp; closures</option>
+          <option value="info">Green – general information</option>
+          <option value="urgent">Red – important</option>
+        </select></label>
+      <label>Show on
+        <select data-f="where">
+          <option value="all">Every page</option>
+          <option value="shop">Shop pages only</option>
+        </select></label>
+    </div>
+    <details>
+      <summary>Add a link (optional)</summary>
+      <div class="grid2">
+        <label>Link text<input data-f="link_text" maxlength="40" placeholder="e.g. Contact us"></label>
+        <label>Link address<input data-f="link_url" maxlength="300" placeholder="e.g. /contact-us/"></label>
+      </div>
+    </details>
+    <div class="card-foot"><button type="button" class="link-btn danger" data-k="remove">Delete this notice</button></div>
+  </article>
+</template>
+
+<template id="product-tpl">
+  <article class="card product-card">
+    <div class="card-head"><h2 data-k="heading"></h2><a data-k="view" target="_blank" rel="noopener">View page ↗</a></div>
+    <div class="grid2">
+      <label>Product name<input data-f="title" maxlength="120" required></label>
+      <label>Price (AUD)<span class="money"><span>$</span><input data-f="price" inputmode="decimal" required></span></label>
+    </div>
+    <label class="switch"><input type="checkbox" data-f="available"><span>Available to buy</span></label>
+    <p class="hint" data-k="unavail" hidden>The product page will say it's currently unavailable and hide the Buy now button. People can still email or call.</p>
+    <label>Note on the product page <span class="muted">(optional)</span>
+      <textarea data-f="note" rows="2" maxlength="300" placeholder="e.g. Orders placed after 15 December will be dispatched in January."></textarea></label>
+    <label>Stripe payment link <span class="muted">(optional)</span>
+      <input data-f="stripe_payment_link" maxlength="300" placeholder="https://buy.stripe.com/…" spellcheck="false"></label>
+    <p class="hint">From Stripe → Payment Links. With a link, the page shows a <strong>Buy now</strong> button (card, Apple Pay, Google Pay). Without one, customers order by email or phone.</p>
+    <p class="alert alert--warn" data-k="pricewarn" hidden>You've changed the price. <strong>Also change it in Stripe</strong> – the Stripe payment link charges the price set in Stripe, not the price shown here.</p>
+  </article>
+</template>
+
+<script src="/admin/admin.js"></script>
+</body>
+</html>

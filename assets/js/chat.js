@@ -43,13 +43,15 @@
     fix: 'rebuild', repair: 'rebuild', restore: 'rebuild', restoration: 'rebuild', renovate: 'rebuild', covered: 'indoor', shed: 'indoor', roof: 'indoor',
     flooding: 'flood', floods: 'flood', flooded: 'flood', ship: 'delivery', shipping: 'delivery', deliver: 'delivery', delivered: 'delivery', post: 'delivery', postage: 'delivery', freight: 'delivery', send: 'delivery', owns: 'founder', owner: 'founder', own: 'founder', boss: 'founder', started: 'founder', founded: 'founder', jumping: 'jump', showjumping: 'jump', reining: 'western', campdraft: 'western', campdrafting: 'western', last: 'lifespan', life: 'lifespan', lifetime: 'lifespan' };
   function tokens(s) {
-    return String(s).toLowerCase().replace(/<[^>]+>/g, ' ').replace(/spread-a-bar/g, 'spreadabar').replace(/[^a-z0-9$ ]+/g, ' ').split(/\s+/)
+    return String(s).toLowerCase().replace(/<[^>]+>/g, ' ').replace(/spread-a-bar/g, 'spreadabar').replace(/(\d+)\s*m?\s*(?:x|by)\s*(\d+)\s*m?\b/g, '$1m $2m').replace(/[^a-z0-9$ ]+/g, ' ').split(/\s+/)
       .filter(function (w) { return w && STOP.indexOf(w) < 0; })
       .map(function (w) { w = SYN[w] || w; if (w.length > 4 && /ies$/.test(w)) w = w.slice(0, -3) + 'y'; else if (w.length > 4 && /s$/.test(w) && !/ss$/.test(w)) w = w.slice(0, -1); return SYN[w] || w; });
   }
   function overlap(q, set) { var n = 0; q.forEach(function (w) { if (set[w]) n++; }); return n; }
   function toSet(arr) { var o = {}; arr.forEach(function (w) { o[w] = 1; }); return o; }
   function prep() {
+    var d = new Date(Date.now() + 10 * 3600e3).toISOString().slice(0, 10);   // Queensland date
+    KB.faq = KB.faq.filter(function (f) { return (!f.from || f.from <= d) && (!f.to || f.to >= d); });   // dated notices
     KB.faq.forEach(function (f) { f.qs = toSet(tokens(f.q)); f.as = toSet(tokens(f.t)); });
     KB.pages.forEach(function (p) { p.ts = toSet(tokens(p.title + ' ' + p.k)); p.ds = toSet(tokens(p.desc)); });
   }

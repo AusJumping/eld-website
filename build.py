@@ -17,15 +17,23 @@ import json
 import os
 import re
 import shutil
+import urllib.parse
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(ROOT, 'public')
 C = json.load(open(os.path.join(ROOT, 'config.json'), encoding='utf-8'))
 NAV = json.load(open(os.path.join(ROOT, 'content', 'navigation.json'), encoding='utf-8'))
 IMG = json.load(open(os.path.join(ROOT, 'assets', 'img', 'manifest.json'), encoding='utf-8'))
+# Edited through the website admin (server/): product prices/links and site notices
+SHOP_FILE = os.path.join(ROOT, 'content', 'shop.json')
+NOTICES_FILE = os.path.join(ROOT, 'content', 'notices.json')
+SHOP = json.load(open(SHOP_FILE, encoding='utf-8'))['products']
+NOTICES = json.load(open(NOTICES_FILE, encoding='utf-8')).get('notices', [])
 SITE = C['site_url'].rstrip('/')
+SITE_LIVE = C.get('live_url', 'https://eld-website.onrender.com').rstrip('/')   # where the site is actually served (until the domain moves)
 YEAR = datetime.date.today().year
 TODAY = datetime.date.today().isoformat()
+TODAY_QLD = (datetime.datetime.utcnow() + datetime.timedelta(hours=10)).date().isoformat()   # Queensland has no daylight saving
 WARN = []
 ORG_ID = SITE + '/#organization'
 WEBSITE_ID = SITE + '/#website'
@@ -53,9 +61,25 @@ def money(n):
     return '${:,.2f}'.format(float(n))
 
 
+def price_text(n):
+    """$1,150 for whole dollars, $1,150.50 otherwise (used in sentences)."""
+    n = float(n)
+    return '${:,.0f}'.format(n) if n == int(n) else '${:,.2f}'.format(n)
+
+
+def fill(text):
+    """Replace {{price:product-key}} placeholders so prices only live in content/shop.json."""
+    def sub(m):
+        if m.group(1) not in SHOP:
+            WARN.append('unknown product in placeholder: ' + m.group(0))
+            return m.group(0)
+        return price_text(SHOP[m.group(1)]['price'])
+    return re.sub(r'\{\{price:([a-z0-9-]+)\}\}', sub, text)
+
+
 # ---------------------------------------------------------------- loading
 def load(path):
-    text = open(path, encoding='utf-8').read()
+    text = fill(open(path, encoding='utf-8').read())
     meta = {}
     body = text
     if text.startswith('---'):
@@ -79,6 +103,13 @@ for p in POSTS:
     p['layout'] = 'post'
 for p in PRODUCTS:
     p['layout'] = 'product'
+    shop = SHOP.get(p['key'], {})
+    p['title'] = shop.get('title') or p.get('title', p['key'])
+    p['price'] = shop.get('price', 0)
+    p['available'] = shop.get('available', True)
+    p['note'] = (shop.get('note') or '').strip()
+    p['stripe'] = (shop.get('stripe_payment_link') or '').strip() if p['available'] else ''
+    p['seo_title'] = p.get('seo_title', '').replace('{{title}}', p['title'])
 BY_URL = {p['url']: p for p in PAGES + POSTS + PRODUCTS}
 BY_URL.setdefault('/news/', {'url': '/news/', 'title': 'Latest News & Updates', 'parent': '/'})
 BY_URL.setdefault('/', {'url': '/', 'title': 'Home'})
@@ -502,14 +533,41 @@ def cta_band(kind=''):
             '<a class="btn btn-ghost-light" href="tel:{0}">{1} {2}</a></div></section>').format(C['phone_intl'], ICON['phone'], C['phone_display'])
 
 
+def order_mailto(title):
+    body = ("Hi Todd,\n\nI'd like to order: {}\nQuantity: 1\n\nName:\nPhone:\nDelivery address:\n\nThanks").format(title.replace('®', ''))
+    return 'mailto:{}?subject={}&body={}'.format(C['email'], urllib.parse.quote('Order: ' + title.replace('®', '')), urllib.parse.quote(body))
+
+
+STRIPE_ON = any(p['stripe'] for p in PRODUCTS)
+PAY_BADGES = ('<ul class="pay-badges" role="list" aria-label="Payment options"><li class="pay-stripe">'
+              '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 9V7a5 5 0 00-10 0v2H5v12h14V9zm-8 0V7a3 3 0 016 0v2z" fill="currentColor"/></svg>'
+              'Secure checkout by Stripe</li><li>Apple Pay</li><li>Google Pay</li><li>Visa</li><li>Mastercard</li><li>Amex</li></ul>')
+
+
+def order_ways():
+    """Shop page: how to order. Email first, then Todd's phone (plus online checkout once Stripe links are set)."""
+    ways = []
+    if STRIPE_ON:
+        ways.append(('Buy online', 'Choose your Spread-a-bar® above and tap <strong>Buy now</strong>. Pay by card, Apple Pay or Google Pay through secure Stripe checkout.', ''))
+    ways.append(('Email your order', 'Email <a href="{0}">{1}</a> with the model, your name, phone and delivery address.'.format(
+        esc(order_mailto('ELD Arena Spread-a-bar')), C['email']), '<a class="btn btn-small btn-primary" href="{}">Email to order</a>'.format(esc(order_mailto('ELD Arena Spread-a-bar')))))
+    ways.append(('Call {}'.format(C['contact_name'].split()[0]), 'Prefer to talk it through? Call {} on <a href="tel:{}">{}</a>.'.format(
+        esc(C['contact_name']), C['phone_intl'], C['phone_display']), '<a class="btn btn-small btn-outline" href="tel:{}">Call {}</a>'.format(C['phone_intl'], C['phone_display'])))
+    cards = ''.join('<li><span class="ow-num">{}</span><div><h3>{}</h3><p>{}</p>{}</div></li>'.format(i + 1, esc(t), d, b) for i, (t, d, b) in enumerate(ways))
+    return '<section class="order-ways" aria-labelledby="order-h"><h2 id="order-h">How to order</h2><ol role="list">{}</ol>{}</section>'.format(
+        cards, PAY_BADGES if STRIPE_ON else '')
+
+
 def product_cards(compact=False):
     cards = []
     for p in PRODUCTS:
         cards.append(('<a class="product-card" href="{url}"><div class="product-media">{img}</div><div class="product-body">'
-                      '<p class="eyebrow">{size} width</p><h3>{title}</h3><p class="price">{price} <span>AUD</span></p>'
-                      '<span class="btn btn-small">View &amp; buy</span></div></a>').format(
+                      '<p class="eyebrow">{size} width</p><h3>{title}</h3><p class="price">{price} <span>AUD</span></p>{status}'
+                      '<span class="btn btn-small">{cta}</span></div></a>').format(
             url=p['url'], img=img('spread-a-bar-in-use', p['title'], '(min-width: 900px) 380px, 100vw'),
-            size=esc(p['size']), title=esc(p['title']), price=money(p['price'])))
+            size=esc(p['size']), title=esc(p['title']), price=money(p['price']),
+            status='' if p['available'] else '<p class="stock-flag">Currently unavailable</p>',
+            cta='View &amp; buy' if p['stripe'] else 'View &amp; order'))
     cards.append(('<a class="product-card product-card--custom" href="mailto:{}?subject=Spread-a-bar%20made%20to%20order%20enquiry">'
                   '<div class="product-body"><p class="eyebrow">Made to order</p><h3>Need a different size?</h3>'
                   '<p>The ELD Arena Spread-a-bar® is available in three sizes or can be made to order upon request.</p>'
@@ -517,8 +575,44 @@ def product_cards(compact=False):
     return '<div class="products{}">{}</div>'.format(' products--compact' if compact else '', ''.join(cards))
 
 
+NOTICE_ICON = {
+    'info': '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-6h2zm0-8h-2V7h2z" fill="currentColor"/></svg>',
+    'holiday': '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2v2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2h-2V2h-2v2H9V2zM5 9h14v11H5zm2 2v2h2v-2zm4 0v2h2v-2zm4 0v2h2v-2z" fill="currentColor"/></svg>',
+    'urgent': '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 21h22L12 2zm12-3h-2v-2h2zm0-4h-2v-4h2z" fill="currentColor"/></svg>',
+}
+
+
+def live_notices():
+    """Enabled notices that haven't ended (start dates are checked again in the browser, so future ones appear on their own)."""
+    return [n for n in NOTICES if n.get('enabled', True) and (n.get('message') or '').strip() and not (n.get('end') and n['end'] < TODAY_QLD)]
+
+
+def notice_dates(n):
+    s, e = n.get('start'), n.get('end')
+    f = lambda d: datetime.date.fromisoformat(d).strftime('%-d %B %Y')
+    return ('from {} to {}'.format(f(s), f(e)) if s and e else 'from ' + f(s) if s else 'until ' + f(e) if e else '')
+
+
+def notice_bar(url):
+    on_shop = url.startswith('/shop/') or url.startswith('/product/')
+    out = []
+    for n in live_notices():
+        if n.get('where') == 'shop' and not on_shop:
+            continue
+        style = n.get('style') if n.get('style') in NOTICE_ICON else 'info'
+        link = ''
+        if n.get('link_url'):
+            link = ' <a href="{}">{}</a>'.format(esc(n['link_url']), esc(n.get('link_text') or 'More information'))
+        key = '{}-{}'.format(n.get('id', 'n'), hashlib.md5(n['message'].encode()).hexdigest()[:6])
+        out.append('<div class="notice notice--{st}" role="status" data-notice="{k}" data-start="{s}" data-end="{e}"{h}><div class="container notice-inner">'
+                   '<span class="notice-icon">{ic}</span><p>{m}{l}</p><button class="notice-close" type="button" aria-label="Dismiss this notice">×</button></div></div>'.format(
+                       st=style, k=esc(key), s=esc(n.get('start', '')), e=esc(n.get('end', '')), h=' hidden' if n.get('start') and n['start'] > TODAY_QLD else '',
+                       ic=NOTICE_ICON[style], m=esc(n['message'].strip()), l=link))
+    return '\n'.join(out)
+
+
 def header(current):
-    return '''<a class="skip" href="#content">Skip to content</a>
+    return notice_bar(current) + '''<a class="skip" href="#content">Skip to content</a>
 <div class="topbar"><div class="container topbar-inner">
 <div class="topbar-contact"><a href="tel:{pi}">{ip}<span>{pd}</span></a><a href="mailto:{em}">{im}<span>{em}</span></a></div>
 <div class="topbar-social"><span class="topbar-note">Est. 2000 · Australian family-owned</span><a href="{fb}" target="_blank" rel="noopener" aria-label="ELD on Facebook">{ifb}</a><a href="{ig}" target="_blank" rel="noopener" aria-label="ELD on Instagram">{iig}</a></div>
@@ -793,7 +887,7 @@ def render_page(page):
                          'No wheels or tyres – no corrugations', 'Folds away for storage'])
         body = '''{}<div class="container section"><div class="prose prose--wide">{}</div>{}
 <ul class="ticks" role="list">{}</ul>
-<p class="secure-note">Secure checkout by Stripe: card, Apple Pay or Google Pay. Prices in Australian dollars.</p></div>'''.format(hero, content, product_cards(), feats)
+{}<p class="secure-note">Prices in Australian dollars. Australia-wide delivery.</p></div>'''.format(hero, content, product_cards(), feats, order_ways())
     else:
         body = '{}<div class="container page-grid"><article class="prose">{}</article>{}</div>'.format(hero, content, aside(page))
     write(page['url'], shell(page, body, graph, 'layout-' + layout))
@@ -804,15 +898,19 @@ def render_product(p):
     ctx = {'url': p['url'], 'title': p['title']}
     crumb_html, crumb_ld = crumbs(p)
     content = md(p['body'], ctx)
-    conf = C['shop']['products'].get(p['key'], {})
-    stripe = conf.get('stripe_payment_link', '').strip()
+    first = C['contact_name'].split()[0]
     buttons = []
-    if stripe:
-        buttons.append('<a class="btn btn-primary btn-block btn-buy" href="{}">Buy now<span class="btn-sub">Card, Apple Pay or Google Pay</span></a>'.format(esc(stripe)))
-    if not buttons:
-        WARN.append('no checkout configured for {} – showing "Order by email"'.format(p['key']))
-        buttons.append('<a class="btn btn-primary btn-block" href="mailto:{}?subject=Order%3A%20{}">Order by email</a>'.format(
-            C['email'], esc(p['title'].replace('®', '').replace(' ', '%20'))))
+    if p['stripe']:
+        buttons.append('<a class="btn btn-primary btn-block btn-buy" href="{}">Buy now<span class="btn-sub">Card, Apple Pay or Google Pay</span></a>'.format(esc(p['stripe'])))
+        buttons.append('<p class="or-line"><span>or order direct</span></p>')
+    if not p['available']:
+        buttons.append('<p class="stock-note"><strong>Currently unavailable to buy online.</strong> Email or call {} to check availability.</p>'.format(esc(first)))
+    if not p['stripe']:
+        WARN.append('no Stripe link for {} – showing email/phone ordering'.format(p['key']))
+    buttons.append('<a class="btn {} btn-block" href="{}">{}Email to order</a>'.format(
+        'btn-outline' if p['stripe'] else 'btn-primary', esc(order_mailto(p['title'])), ICON['mail']))
+    buttons.append('<a class="btn btn-outline btn-block" href="tel:{}">{}Call {} on {}</a>'.format(C['phone_intl'], ICON['phone'], esc(first), C['phone_display']))
+    note = '<p class="product-note">{}</p>'.format(esc(p['note'])) if p['note'] else ''
     sizes = ''.join('<a class="size-chip{}" href="{}"{}>{}</a>'.format(
         ' is-current' if q['url'] == p['url'] else '', q['url'], ' aria-current="page"' if q['url'] == p['url'] else '', esc(q['size'].replace(' metre', 'm')))
         for q in PRODUCTS)
@@ -832,14 +930,15 @@ def render_product(p):
 <p class="buy-price">{price} <span>AUD</span></p>
 <div class="sizes" aria-label="Choose a size"><span class="sizes-label">Width</span>{sizes}</div>
 <ul class="ticks" role="list">{feats}</ul>
-<div class="buy-actions">{buttons}</div>
-<p class="secure-note">Secure checkout by Stripe. Questions before you buy? Call {who} on <a href="tel:{pi}">{pd}</a>.</p>
+{note}<div class="buy-actions">{buttons}</div>
+{badges}<p class="secure-note">Questions before you buy? Email <a href="mailto:{em}">{em}</a> or call {who} on <a href="tel:{pi}">{pd}</a>.</p>
 </div></div></div>
 <div class="container page-grid"><article class="prose">{content}</article>
 <aside class="page-aside"><div class="aside-card"><h2>Also available</h2>{others}</div>
 <div class="aside-card"><h2>Maintenance help</h2><ul class="aside-links"><li><a href="/maintenance-surface-products/arena-maintenance/">Arena maintenance tips</a></li><li><a href="/maintenance-surface-products/eld-arena-spread-a-bar/">About the Spread-a-bar®</a></li><li><a href="/faq/">FAQ</a></li></ul></div></aside></div>'''.format(
         crumbs=crumb_html, mainf=IMG[imgs[0]]['file'], main=img(imgs[0], p['title'] + ' in use on a sand arena', '(min-width: 900px) 55vw, 100vw', eager=True),
         t=esc(p['title']), thumbs=thumbs, video=video, price=money(p['price']), sizes=sizes, feats=feats, buttons=''.join(buttons),
+        note=note, badges=PAY_BADGES if p['stripe'] else '', em=C['email'],
         who=esc(C['contact_name']), pi=C['phone_intl'], pd=C['phone_display'], content=content,
         others=''.join('<a class="mini-product" href="{}">{}<span><strong>{}</strong><span>{} AUD</span></span></a>'.format(
             q['url'], img(imgs[0], '', '80px'), esc(q['title']), money(q['price'])) for q in others))
@@ -849,12 +948,14 @@ def render_product(p):
                'countryOfOrigin': 'AU', 'additionalProperty': [{'@type': 'PropertyValue', 'name': 'Width', 'value': p['size']},
                                                                 {'@type': 'PropertyValue', 'name': 'Tine length', 'value': '30mm'}],
                'offers': {'@type': 'Offer', 'url': absurl(p['url']), 'price': '{:.2f}'.format(float(p['price'])), 'priceCurrency': 'AUD',
-                          'availability': 'https://schema.org/InStock', 'itemCondition': 'https://schema.org/NewCondition', 'seller': {'@id': ORG_ID},
+                          'availability': 'https://schema.org/' + ('InStock' if p['available'] else 'OutOfStock'), 'itemCondition': 'https://schema.org/NewCondition', 'seller': {'@id': ORG_ID},
                           'areaServed': 'AU'}}
     graph = [org_ld(), website_ld(), webpage_ld(dict(p, hero=imgs[0]), crumb_ld, 'ItemPage'), crumb_ld, product] + video_ld(ctx, p.get('date'))
     write(p['url'], shell(dict(p, hero=imgs[0]), body, graph, 'layout-product', og_type='product'))
-    write_md(p, md_plain(p['body'], ctx), '**Price:** {} AUD · **Width:** {} · **SKU:** {} · Australia-wide delivery · Buy online: {}\n\n'.format(
-        money(p['price']), p['size'], p['sku'], absurl(p['url'])))
+    write_md(p, md_plain(p['body'], ctx), '**Price:** {} AUD · **Width:** {} · **SKU:** {} · Australia-wide delivery{}\n\n**How to order:** {}email {} or call {} on {}.{}\n\n'.format(
+        money(p['price']), p['size'], p['sku'], '' if p['available'] else ' · **Currently unavailable**',
+        'buy online at {} (Stripe: card, Apple Pay or Google Pay), '.format(absurl(p['url'])) if p['stripe'] else '',
+        C['email'], C['contact_name'], C['phone_display'], ('\n\n**Note:** ' + p['note']) if p['note'] else ''))
 
 
 def post_excerpt(p, n=170):
@@ -1071,7 +1172,16 @@ def write_chat_kb():
     def block(body):
         inner = body.split('::: faq', 1)[1].split('\n:::', 1)[0]
         return parse_faq(inner.strip('\n').split('\n'))
-    items = [{'q': q, 'a': a_html, 't': a_text} for q, a_html, a_text in block(faq_body) + block(extra)]
+    items = []
+    if live_notices():   # one answer listing every current (or upcoming) notice, so "are you open over Christmas?" finds them
+        lis = ''.join('<li>{}{}</li>'.format(esc(n['message'].strip()), ' <a href="{}">{}</a>'.format(esc(n['link_url']), esc(n.get('link_text') or 'More information')) if n.get('link_url') else '')
+                      for n in live_notices())
+        starts = [n.get('start') or '' for n in live_notices()]
+        ends = [n.get('end') or '' for n in live_notices()]
+        items.append({'q': 'Notice / notices / are you open / closed / closure / holiday / holidays / christmas / easter / shutdown / break',
+                      't': ' '.join(n['message'] for n in live_notices()), 'a': '<p><strong>Current notices:</strong></p><ul>{}</ul>'.format(lis),
+                      'from': min(starts) if all(starts) else '', 'to': max(ends) if all(ends) else ''})
+    items += [{'q': q, 'a': a_html, 't': a_text} for q, a_html, a_text in block(faq_body) + block(extra)]
     pages = []
     for u, p in BY_URL.items():
         if not p.get('title') or u in ('/',):
@@ -1112,11 +1222,17 @@ Key facts:
 - Pricing (as at 01/08/2025, subject to change; varies with earthworks, location and site): 20m x 60m arena $70,000–$80,000 + GST; 20m x 40m arena $60,000–$70,000 + GST.
 - Onsite consultations attract a fee, credited toward arena construction if you proceed. Pre-purchase property inspections available. ELD keeps records of every arena built since 2000 and can verify claims that an arena is ELD-built.
 - Arena surface life: on average 5–7 years, extended with maintenance. Maintenance visits (Automated Laser Planes) every 3, 6 or 12 months; minimum 4–6 weeks lead time; currently servicing SE QLD and Northern NSW.
-- Shop: ELD Arena Spread-a-bar® 1m $1,150 AUD; 1.5m $1,480 AUD; other sizes made to order. Made in Australia (Brisbane). Australia-wide delivery.
+- Shop: {shop}; other sizes made to order. {order} Made in Australia (Brisbane). Australia-wide delivery.
 - Contact: {who}, phone {pd} ({pi}), email {em}. Postal: {l1}, {loc} {reg} {pc}, {country}. Facebook: {fb} · Instagram: {ig}
 
-'''.format(who=C['contact_name'], pd=C['phone_display'], pi=C['phone_intl'], em=C['email'], l1=a['line1'], loc=a['locality'], reg=a['region'],
+'''.format(order='Order online (Stripe: card, Apple Pay, Google Pay), by email or by phone.' if STRIPE_ON else 'Order by email or phone.',
+           shop='; '.join('{} {} AUD{}'.format(p['title'], price_text(p['price']), '' if p['available'] else ' (currently unavailable)') for p in PRODUCTS),
+           who=C['contact_name'], pd=C['phone_display'], pi=C['phone_intl'], em=C['email'], l1=a['line1'], loc=a['locality'], reg=a['region'],
            pc=a['postcode'], country=a['country'], fb=C['social']['facebook'], ig=C['social']['instagram'])
+    if live_notices():
+        notes = '\n'.join('- {}{}{}'.format(n['message'].strip(), ' ({})'.format(notice_dates(n)) if notice_dates(n) else '',
+                                             ' [shop orders]' if n.get('where') == 'shop' else '') for n in live_notices())
+        txt += '## Current notices (as at {})\n\n{}\n\n'.format(TODAY_QLD, notes)
     for title, urls in sections:
         txt += '## {}\n\n{}\n\n'.format(title, '\n'.join(line(u) for u in urls))
     txt += '## News\n\n- [Latest News & Updates]({}/news/index.md)\n{}\n\n'.format(SITE, '\n'.join(
@@ -1126,6 +1242,8 @@ Key facts:
 
     order = ['/'] + [u for _, us in sections for u in us] + ['/news/'] + [p['url'] for p in POSTS]
     full = '# Equestrian Land Developments – full website content\n\nGenerated {} from {}\n\n'.format(TODAY, SITE)
+    if live_notices():
+        full += '## Current notices\n\n' + '\n'.join('- {}{}'.format(n['message'].strip(), ' ({})'.format(notice_dates(n)) if notice_dates(n) else '') for n in live_notices()) + '\n\n---\n\n'
     full += '\n\n---\n\n'.join(MARKDOWN[u] for u in order if u in MARKDOWN)
     open(os.path.join(OUT, 'llms-full.txt'), 'w', encoding='utf-8').write(full)
 
@@ -1162,26 +1280,44 @@ REDIRECTS = [
 WILDCARDS = [('/news/category/', '/news/'), ('/news/tag/', '/news/'), ('/news/author/', '/news/'), ('/product-category/', '/shop/')]
 
 
+def write_version():
+    """Fingerprints of the admin-edited files, so the admin can tell when a saved change is live."""
+    v = {k: hashlib.sha256(open(f, 'rb').read()).hexdigest()[:16] for k, f in (('shop', SHOP_FILE), ('notices', NOTICES_FILE))}
+    v['built'] = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+    json.dump(v, open(os.path.join(OUT, 'version.json'), 'w'))
+
+
 def write_redirects():
+    admin = C.get('admin_url', '').strip()
+    redirects = REDIRECTS + ([('/admin', admin), ('/admin/', admin)] if admin else [])
     nl = ['# Redirects from the old WordPress site (Netlify / Cloudflare Pages format)']
-    nl += ['{}  {}  301'.format(a, b) for a, b in REDIRECTS]
+    nl += ['{}  {}  301'.format(a, b) for a, b in redirects]
     nl += ['{}*  {}  301'.format(a, b) for a, b in WILDCARDS]
     open(os.path.join(OUT, '_redirects'), 'w').write('\n'.join(nl) + '\n')
     ht = ['# Apache (cPanel) hosting: redirects from the old WordPress site', 'ErrorDocument 404 /404.html', 'DirectoryIndex index.html',
           'AddType text/markdown .md', 'AddCharset utf-8 .md .txt']
-    ht += ['Redirect 301 {} {}'.format(a, b) for a, b in REDIRECTS]
+    ht += ['Redirect 301 {} {}'.format(a, b) for a, b in redirects]
     ht += ['RedirectMatch 301 ^{}.*$ {}'.format(re.escape(a), b) for a, b in WILDCARDS]
     open(os.path.join(OUT, '.htaccess'), 'w').write('\n'.join(ht) + '\n')
     # Render.com blueprint (lives in the project root, next to build.py)
     ry = ['# Render.com static site – generated by build.py (edit REDIRECTS in build.py, not here)', 'services:',
           '  - type: web', '    name: eld-website', '    runtime: static', '    buildCommand: python3 build.py',
-          '    staticPublishPath: ./public', '    pullRequestPreviewsEnabled: false', '    headers:',
+          '    staticPublishPath: ./public', '    pullRequestPreviewsEnabled: false',
+          '    buildFilter:', '      ignoredPaths:', '        - server/**', '        - README.md', '    headers:',
+          '      - path: /version.json', '        name: Cache-Control', '        value: no-store',
           '      - path: /assets/*', '        name: Cache-Control', '        value: public, max-age=2592000',
           '      - path: /*', '        name: X-Content-Type-Options', '        value: nosniff', '    routes:']
-    for a, b in REDIRECTS:
+    for a, b in redirects:
         ry += ['      - type: redirect', '        source: ' + a, '        destination: ' + b]
     for a, b in WILDCARDS:
         ry += ['      - type: redirect', '        source: {}*'.format(a), '        destination: ' + b]
+    # The admin + chat back end (server/): a small Python web service
+    ry += ['', '  - type: web', '    name: eld-admin', '    runtime: python', '    plan: free', '    rootDir: server',
+           '    buildCommand: pip install -r requirements.txt', '    startCommand: python app.py', '    healthCheckPath: /health',
+           '    envVars:', '      - key: PYTHON_VERSION', '        value: 3.12.7',
+           '      - key: GITHUB_REPO', '        value: AusJumping/eld-website', '      - key: SITE_URL', '        value: ' + SITE_LIVE,
+           '      - key: ADMIN_PASSWORD', '        sync: false', '      - key: GITHUB_TOKEN', '        sync: false',
+           '      - key: ANTHROPIC_API_KEY', '        sync: false']
     open(os.path.join(ROOT, 'render.yaml'), 'w').write('\n'.join(ry) + '\n')
 
 
@@ -1216,6 +1352,7 @@ def main():
     write_ai_files(all_urls)
     write_chat_kb()
     write_redirects()
+    write_version()
     n = len(glob.glob(os.path.join(OUT, '**', 'index.html'), recursive=True))
     print('Built {} pages into public/'.format(n))
     for w in sorted(set(WARN)):
