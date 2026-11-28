@@ -3,7 +3,7 @@
   "notices": [
     {
       "id": "807907cf",
-      "enabled": true,
+      "enabled": false,
       "message": "Test",
       "link_text": "",
       "link_url": "",
