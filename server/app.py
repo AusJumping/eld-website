@@ -34,6 +34,7 @@ import secrets
 import threading
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from collections import defaultdict, deque
 from http.cookies import SimpleCookie
@@ -137,7 +138,10 @@ def _blob_sha(raw):
 
 
 def read_file(key):
-    path = FILES[key]
+    return read_path(FILES[key])
+
+
+def read_path(path):
     if LOCAL_REPO:
         raw = open(os.path.join(LOCAL_REPO, path), "rb").read()
         return raw, _blob_sha(raw)
@@ -146,7 +150,10 @@ def read_file(key):
 
 
 def write_file(key, raw, sha, message):
-    path = FILES[key]
+    return write_path(FILES[key], raw, sha, message)
+
+
+def write_path(path, raw, sha, message):
     if LOCAL_REPO:
         with lock:
             full = os.path.join(LOCAL_REPO, path)
@@ -242,12 +249,14 @@ def clean_notices(new, current):
         label = "Notice {}".format(i)
         nid = n.get("id") if isinstance(n.get("id"), str) and re.match(r"^[a-z0-9]{1,16}$", n.get("id", "")) else secrets.token_hex(4)
         item = {"id": nid, "enabled": bool(n.get("enabled", True)),
+                "title": text(n.get("title"), label + " heading", 60),
                 "message": text(n.get("message"), label + " message", 300, True),
                 "link_text": text(n.get("link_text"), label + " link text", 40),
                 "link_url": text(n.get("link_url"), label + " link address", 300),
                 "style": n.get("style") if n.get("style") in STYLES else "info",
                 "where": n.get("where") if n.get("where") in PLACES else "all",
-                "start": date(n.get("start"), label + " start date"), "end": date(n.get("end"), label + " end date")}
+                "start": date(n.get("start"), label + " start date"), "end": date(n.get("end"), label + " end date"),
+                "popup": bool(n.get("popup"))}
         if item["link_url"] and not LINK_RE.match(item["link_url"]):
             raise Bad(label + ": the link should be a page on the site (e.g. /contact-us/) or a full https:// address.")
         if item["start"] and item["end"] and item["end"] < item["start"]:
@@ -265,6 +274,209 @@ def shop_summary(old, new):
         elif o != n:
             changes.append(n["title"].replace("ELD Arena ", "") + " details")
     return "Admin: update products" + (" (" + "; ".join(changes) + ")" if changes else "")
+
+
+# ======================================================================= admin: page text
+PAGES_DIR = "content/pages"
+# The home page layout is built in code (build.py), so its text file doesn't change what visitors see.
+HIDDEN_PAGES = {"home.md"}
+LOCKED = {"gallery": "Photo gallery", "figure": "Photo", "downloads": "Download links (PDFs)", "features": "Feature cards",
+          "stats": "Key figures", "spec-diagram": "Arena layers diagram", "verge-diagram": "Verge system diagram",
+          "cta": "“Talk to Todd” banner", "children": "Links to the pages in this section", "product-teaser": "Spread-a-bar® promotion",
+          "video": "Video", "logos": "Partner logos", "logos-history": "Partner logos", "split": "Photo and text panel", "include": "Shared content"}
+PAGE_FIELDS = (("title", "Page heading", 120, True), ("lead", "Intro line", 300, False), ("description", "Google summary", 320, False))
+_page_list = {"at": 0.0, "items": []}
+
+
+def page_path(name):
+    if not isinstance(name, str) or not re.match(r"^[a-z0-9][a-z0-9-]*\.md$", name) or name in HIDDEN_PAGES:
+        raise Bad("Unknown page.", 404)
+    return PAGES_DIR + "/" + name
+
+
+def front_matter(raw):
+    text = raw.decode("utf-8").replace("\r\n", "\n")
+    if not text.startswith("---") or text.count("---") < 2:
+        raise Bad("This page file isn't in the expected format, so it can't be edited here.", 422)
+    _, fm, body = text.split("---", 2)
+    meta = {}
+    for line in fm.strip().splitlines():
+        if ":" in line:
+            k, v = line.split(":", 1)
+            meta[k.strip()] = v.strip()
+    return fm, meta, body.strip("\n")
+
+
+def split_body(body):
+    """Mirror build.py split_blocks(): text runs and ::: blocks, keeping every line so the file can be rebuilt exactly."""
+    lines, out, buf, i = body.split("\n"), [], [], 0
+    while i < len(lines):
+        line = lines[i]
+        if line.startswith("::: "):
+            if buf:
+                out.append({"kind": "text", "lines": buf})
+                buf = []
+            inner, i = [], i + 1
+            while i < len(lines) and lines[i].strip() != ":::":
+                inner.append(lines[i])
+                i += 1
+            out.append({"kind": "dir", "name": line[4:].strip().partition(" ")[0], "head": line, "inner": inner})
+        else:
+            buf.append(line)
+        i += 1
+    if buf:
+        out.append({"kind": "text", "lines": buf})
+    return out
+
+
+def faq_items(inner):
+    items, block = [], []
+    for l in inner + [""]:
+        if l.strip():
+            block.append(l)
+        elif block:
+            items.append({"q": block[0].strip(), "a": "\n".join(block[1:]).strip()})
+            block = []
+    return items
+
+
+def pricing_rows(inner):
+    rows = [[c.strip() for c in l.split("|")] for l in inner if l.strip()]
+    return [{"item": r[0], "price": r[1]} for r in rows] if rows and all(len(r) == 2 for r in rows) else None
+
+
+def editor_view(segs):
+    """What the admin shows: editable text, FAQ, price table and highlighted-box blocks; everything else is locked."""
+    view = []
+    for sg in segs:
+        if sg["kind"] == "text":
+            view.append({"type": "text", "text": "\n".join(sg["lines"]).strip("\n")})
+        elif sg["name"] == "callout":
+            view.append({"type": "callout", "text": "\n".join(sg["inner"]).strip("\n")})
+        elif sg["name"] == "faq":
+            view.append({"type": "faq", "items": faq_items(sg["inner"])})
+        elif sg["name"] == "pricing" and pricing_rows(sg["inner"]) is not None:
+            view.append({"type": "pricing", "rows": pricing_rows(sg["inner"])})
+        else:
+            view.append({"type": "locked", "label": LOCKED.get(sg["name"], "Special section")})
+    return view
+
+
+LINK_IN_TEXT = re.compile(r"\[([^\]]+)\]\(([^)\s]*)\)")
+SAFE_URL = re.compile(r"^(/(?!/)|#|https?://|mailto:|tel:)")
+
+
+def clean_text(value, label, maxlen=20000, single_line=False):
+    if not isinstance(value, str):
+        raise Bad(label + " must be text.")
+    value = value.replace("\r\n", "\n").replace("\r", "\n").strip("\n")
+    if len(value) > maxlen:
+        raise Bad("{} is too long (maximum {:,} characters).".format(label, maxlen))
+    lines = [l.rstrip() for l in value.split("\n")]
+    if single_line and len(lines) > 1:
+        lines = [" ".join(l.strip() for l in lines if l.strip())]
+    for l in lines:
+        if l.lstrip().startswith(":::") or l.strip() == "---":
+            raise Bad(label + ": lines can't start with “:::” or be just “---” (those are reserved for the page layout).")
+    for m in LINK_IN_TEXT.finditer("\n".join(lines)):
+        if not SAFE_URL.match(m.group(2)):
+            raise Bad("{}: the link “{}” needs a web address starting with /, https://, mailto: or tel:.".format(label, m.group(1)))
+    return lines
+
+
+def rebuild_page(raw, payload):
+    fm, meta, body = front_matter(raw)
+    segs = split_body(body)
+    view = editor_view(segs)
+    blocks = payload.get("blocks") if isinstance(payload, dict) else None
+    if not isinstance(blocks, list) or len(blocks) != len(view) or any(
+            not isinstance(b, dict) or b.get("type") != v["type"] for b, v in zip(blocks, view)):
+        raise Bad("This page was changed elsewhere since you opened it. Reload the page, then make your change again.", 409)
+
+    # front matter: only the three text fields; everything else (address, photos, layout) is kept exactly
+    fields = payload.get("fields") if isinstance(payload.get("fields"), dict) else {}
+    fm_lines = fm.strip("\n").split("\n")
+    for key, label, maxlen, required in PAGE_FIELDS:
+        if key not in fields:
+            continue
+        val = " ".join(clean_text(fields[key] or "", label, maxlen, single_line=True)).strip()
+        if required and not val:
+            raise Bad(label + " can't be empty.")
+        idx = next((i for i, l in enumerate(fm_lines) if l.split(":", 1)[0].strip() == key), None)
+        if idx is not None:
+            if val:
+                fm_lines[idx] = "{}: {}".format(key, val)
+            else:
+                fm_lines.pop(idx)
+        elif val:
+            fm_lines.append("{}: {}".format(key, val))
+
+    out = []
+    for n, (sg, b) in enumerate(zip(segs, blocks), 1):
+        where = "Section {}".format(n)
+        if b["type"] == "text":
+            lines = clean_text(b.get("text", ""), where)
+            out += [""] + lines + [""] if any(x.strip() for x in lines) else [""]
+        elif b["type"] == "locked":
+            out += [sg["head"]] + sg["inner"] + [":::"]
+        elif b["type"] == "callout":
+            lines = clean_text(b.get("text", ""), where + " (highlighted box)")
+            if not any(x.strip() for x in lines):
+                raise Bad(where + ": the highlighted box can't be empty.")
+            out += [sg["head"]] + lines + [":::"]
+        elif b["type"] == "faq":
+            items = b.get("items")
+            if not isinstance(items, list) or not items or len(items) > 60:
+                raise Bad(where + ": the FAQ needs at least one question.")
+            inner = []
+            for k, it in enumerate(items, 1):
+                if not isinstance(it, dict):
+                    raise Bad("Question {} is invalid.".format(k))
+                q = " ".join(clean_text(it.get("q", ""), "Question {}".format(k), 300, single_line=True)).strip()
+                a = [l for l in clean_text(it.get("a", ""), "Answer {}".format(k), 4000) if l.strip()]
+                if not q or not a:
+                    raise Bad("Question {} needs both a question and an answer.".format(k))
+                inner += ([""] if inner else []) + [q] + a
+            out += [sg["head"]] + inner + [":::"]
+        elif b["type"] == "pricing":
+            rows = b.get("rows")
+            if not isinstance(rows, list) or not rows or len(rows) > 40:
+                raise Bad(where + ": the price table needs at least one row.")
+            inner = []
+            for k, r in enumerate(rows, 1):
+                item = " ".join(clean_text((r or {}).get("item", ""), "Price row {}".format(k), 200, single_line=True)).strip()
+                price = " ".join(clean_text((r or {}).get("price", ""), "Price row {}".format(k), 100, single_line=True)).strip()
+                if not item or not price:
+                    raise Bad("Price row {} needs both a description and a price.".format(k))
+                if "|" in item + price:
+                    raise Bad("Price row {} can't contain the | character.".format(k))
+                inner.append("{} | {}".format(item, price))
+            out += [sg["head"]] + inner + [":::"]
+    new_body = re.sub(r"\n{3,}", "\n\n", "\n".join(out)).strip("\n")
+    if len(new_body) > 150000:
+        raise Bad("This page is too long to save.")
+    title = next((l.split(":", 1)[1].strip() for l in fm_lines if l.split(":", 1)[0].strip() == "title"), "page")
+    return ("---\n" + "\n".join(fm_lines) + "\n---\n\n" + new_body + "\n").encode("utf-8"), title
+
+
+def list_pages(force=False):
+    if not force and _page_list["items"] and time.time() - _page_list["at"] < 300:
+        return _page_list["items"]
+    if LOCAL_REPO:
+        names = sorted(n for n in os.listdir(os.path.join(LOCAL_REPO, PAGES_DIR)) if n.endswith(".md"))
+    else:
+        names = sorted(x["name"] for x in _github("GET", "contents/{}?ref={}".format(PAGES_DIR, GITHUB_BRANCH))
+                       if x["type"] == "file" and x["name"].endswith(".md"))
+    names = [n for n in names if n not in HIDDEN_PAGES]
+
+    def info(name):
+        _, meta, _ = front_matter(read_path(PAGES_DIR + "/" + name)[0])
+        return {"file": name, "title": meta.get("title", name), "url": meta.get("url", "")}
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(8) as ex:
+        items = list(ex.map(info, names))
+    _page_list.update(at=time.time(), items=sorted(items, key=lambda x: x["title"].lower()))
+    return _page_list["items"]
 
 
 # ======================================================================= admin: live check
@@ -510,8 +722,19 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(200, out, admin=True)
             if path == "/admin/api/live":
                 q = dict(p.split("=", 1) for p in self.path.split("?", 1)[-1].split("&") if "=" in p)
-                v = live_version()
-                return self._json(200, {"live": bool(q.get("file") in FILES and v.get(q.get("file")) == q.get("hash"))}, admin=True)
+                v, f = live_version(), urllib.parse.unquote(q.get("file", ""))
+                live = (v.get("pages") or {}).get(f[5:]) == q.get("hash") if f.startswith("page:") else (f in FILES and v.get(f) == q.get("hash"))
+                return self._json(200, {"live": bool(live)}, admin=True)
+            if path == "/admin/api/pages":
+                return self._json(200, {"pages": list_pages()}, admin=True)
+            if path == "/admin/api/page":
+                q = dict(p.split("=", 1) for p in self.path.split("?", 1)[-1].split("&") if "=" in p)
+                name = urllib.parse.unquote(q.get("file", ""))
+                raw, sha = read_path(page_path(name))
+                _, meta, body = front_matter(raw)
+                return self._json(200, {"file": name, "sha": sha, "url": meta.get("url", ""),
+                                        "fields": {k: meta.get(k, "") for k, *_ in PAGE_FIELDS},
+                                        "blocks": editor_view(split_body(body))}, admin=True)
         except Bad as e:
             return self._json(e.status, {"error": str(e)}, admin=True)
         self._json(404, {"error": "not found"}, admin=True)
@@ -533,6 +756,18 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(200, {"ok": True}, admin=True, cookie=self._cookie("", 0))
         if not self._signed_in():
             raise Bad("Please sign in again.", 401)
+        if path == "/admin/api/save-page":
+            body = self._body(400000)
+            path_ = page_path(body.get("file"))
+            raw_now, sha_now = read_path(path_)
+            if body.get("sha") != sha_now:
+                raise Bad("This page was changed since you opened it. Reload the page, then make your change again.", 409)
+            raw, title = rebuild_page(raw_now, body)
+            if raw == raw_now:
+                return self._json(200, {"ok": True, "unchanged": True, "sha": sha_now, "hash": fingerprint(raw)}, admin=True)
+            sha = write_path(path_, raw, sha_now, "Admin: edit page – " + title)
+            _page_list["at"] = 0
+            return self._json(200, {"ok": True, "sha": sha, "hash": fingerprint(raw)}, admin=True)
         if path == "/admin/api/save":
             body = self._body(100000)
             key = body.get("file")

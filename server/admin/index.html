@@ -39,6 +39,7 @@
     <div class="tabs" role="tablist" aria-label="What to edit">
       <button type="button" role="tab" id="tab-btn-notices" aria-controls="tab-notices" aria-selected="true">Notices</button>
       <button type="button" role="tab" id="tab-btn-products" aria-controls="tab-products" aria-selected="false">Products &amp; prices</button>
+      <button type="button" role="tab" id="tab-btn-pages" aria-controls="tab-pages" aria-selected="false">Pages</button>
     </div>
 
     <div id="status" class="status" role="status" aria-live="polite" hidden></div>
@@ -72,6 +73,42 @@
       <div class="savebar"><span class="dirty" id="dirty-products" hidden>Unsaved changes</span><button type="button" class="btn btn-primary" id="save-products">Save products</button></div>
     </section>
 
+    <!-- Pages -->
+    <section id="tab-pages" role="tabpanel" aria-labelledby="tab-btn-pages" hidden>
+      <div class="intro">
+        <h1>Page text</h1>
+        <p>Change the wording on the website's pages. Photos, galleries, diagrams and other layout sections are shown as grey boxes and stay exactly as they are.</p>
+      </div>
+      <label for="page-select">Choose a page</label>
+      <select id="page-select"><option value="">Choose a page…</option></select>
+      <p id="page-loading" class="loading" hidden>Opening page…</p>
+      <div id="page-editor" hidden>
+        <article class="card page-head">
+          <div class="card-head"><h2>Page details</h2><a id="page-view" href="#" target="_blank" rel="noopener">View page ↗</a></div>
+          <label for="pf-title">Page heading</label>
+          <input id="pf-title" maxlength="120">
+          <label for="pf-lead">Intro line <span class="muted">(shown under the heading)</span></label>
+          <textarea id="pf-lead" rows="2" maxlength="300"></textarea>
+          <label for="pf-desc">Google summary <span class="muted" id="pf-desc-count"></span></label>
+          <textarea id="pf-desc" rows="2" maxlength="320"></textarea>
+          <p class="hint">The short description Google and AI assistants show for this page. It isn't shown on the page itself.</p>
+        </article>
+        <details class="help card">
+          <summary>How to format text</summary>
+          <ul>
+            <li>Leave a blank line between paragraphs.</li>
+            <li><code>## Heading</code> – a line starting with ## becomes a heading.</li>
+            <li><code>- item</code> – lines starting with a dash become bullet points.</li>
+            <li><code>**bold**</code> – two stars either side makes text bold.</li>
+            <li><code>[link text](/contact-us/)</code> – a link. Use a page address on this site, or a full https:// address.</li>
+          </ul>
+          <p class="hint">Or use the buttons above each text box, and press <strong>Preview</strong> to check how it will look.</p>
+        </details>
+        <div id="page-blocks" class="stack"></div>
+        <div class="savebar"><span class="dirty" id="dirty-page" hidden>Unsaved changes</span><button type="button" class="btn btn-primary" id="save-page">Save page</button></div>
+      </div>
+    </section>
+
     <p class="foot muted">Changes go live on the website about 1–2 minutes after you save. Every change is kept in the website's history, so nothing is ever lost.</p>
   </section>
 </main>
@@ -83,6 +120,8 @@
       <label class="switch"><input type="checkbox" data-f="enabled"><span>Turned on</span></label>
     </div>
     <div class="preview" data-k="preview"><span data-k="pmsg"></span></div>
+    <label>Heading <span class="muted">(optional, shown in bold – e.g. Christmas closure)</span>
+      <input data-f="title" maxlength="60" placeholder="e.g. Christmas closure"></label>
     <label>Message <span class="muted" data-k="count"></span>
       <textarea data-f="message" rows="2" maxlength="300" placeholder="e.g. Our office is closed from 20 December and reopens 5 January."></textarea></label>
     <div class="grid2">
@@ -102,6 +141,7 @@
           <option value="shop">Shop pages only</option>
         </select></label>
     </div>
+    <label class="switch"><input type="checkbox" data-f="popup"><span>Also show as a pop-up <span class="muted">(once per visit – good for closures)</span></span></label>
     <details>
       <summary>Add a link (optional)</summary>
       <div class="grid2">

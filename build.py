@@ -603,11 +603,14 @@ def notice_bar(url):
         link = ''
         if n.get('link_url'):
             link = ' <a href="{}">{}</a>'.format(esc(n['link_url']), esc(n.get('link_text') or 'More information'))
-        key = '{}-{}'.format(n.get('id', 'n'), hashlib.md5(n['message'].encode()).hexdigest()[:6])
-        out.append('<div class="notice notice--{st}" role="status" data-notice="{k}" data-start="{s}" data-end="{e}"{h}><div class="container notice-inner">'
-                   '<span class="notice-icon">{ic}</span><p>{m}{l}</p><button class="notice-close" type="button" aria-label="Dismiss this notice">×</button></div></div>'.format(
+        title = (n.get('title') or '').strip()
+        key = '{}-{}'.format(n.get('id', 'n'), hashlib.md5((title + n['message']).encode()).hexdigest()[:6])
+        out.append('<div class="notice notice--{st}" role="status" data-notice="{k}" data-start="{s}" data-end="{e}"{pop}{h}><div class="container notice-inner">'
+                   '<span class="notice-icon">{ic}</span><p>{t}<span class="notice-msg">{m}</span>{l}</p>'
+                   '<button class="notice-close" type="button" aria-label="Dismiss this notice">×</button></div></div>'.format(
                        st=style, k=esc(key), s=esc(n.get('start', '')), e=esc(n.get('end', '')), h=' hidden' if n.get('start') and n['start'] > TODAY_QLD else '',
-                       ic=NOTICE_ICON[style], m=esc(n['message'].strip()), l=link))
+                       pop=' data-popup="1"' if n.get('popup') else '', ic=NOTICE_ICON[style],
+                       t='<strong class="notice-title">{}</strong> '.format(esc(title)) if title else '', m=esc(n['message'].strip()), l=link))
     return '\n'.join(out)
 
 
@@ -1174,7 +1177,7 @@ def write_chat_kb():
         return parse_faq(inner.strip('\n').split('\n'))
     items = []
     if live_notices():   # one answer listing every current (or upcoming) notice, so "are you open over Christmas?" finds them
-        lis = ''.join('<li>{}{}</li>'.format(esc(n['message'].strip()), ' <a href="{}">{}</a>'.format(esc(n['link_url']), esc(n.get('link_text') or 'More information')) if n.get('link_url') else '')
+        lis = ''.join('<li>{}{}{}</li>'.format('<strong>{}:</strong> '.format(esc(n['title'].strip())) if (n.get('title') or '').strip() else '', esc(n['message'].strip()), ' <a href="{}">{}</a>'.format(esc(n['link_url']), esc(n.get('link_text') or 'More information')) if n.get('link_url') else '')
                       for n in live_notices())
         starts = [n.get('start') or '' for n in live_notices()]
         ends = [n.get('end') or '' for n in live_notices()]
@@ -1230,7 +1233,7 @@ Key facts:
            who=C['contact_name'], pd=C['phone_display'], pi=C['phone_intl'], em=C['email'], l1=a['line1'], loc=a['locality'], reg=a['region'],
            pc=a['postcode'], country=a['country'], fb=C['social']['facebook'], ig=C['social']['instagram'])
     if live_notices():
-        notes = '\n'.join('- {}{}{}'.format(n['message'].strip(), ' ({})'.format(notice_dates(n)) if notice_dates(n) else '',
+        notes = '\n'.join('- {}{}{}'.format(((n.get('title') or '').strip() + ': ' if (n.get('title') or '').strip() else '') + n['message'].strip(), ' ({})'.format(notice_dates(n)) if notice_dates(n) else '',
                                              ' [shop orders]' if n.get('where') == 'shop' else '') for n in live_notices())
         txt += '## Current notices (as at {})\n\n{}\n\n'.format(TODAY_QLD, notes)
     for title, urls in sections:
@@ -1243,7 +1246,7 @@ Key facts:
     order = ['/'] + [u for _, us in sections for u in us] + ['/news/'] + [p['url'] for p in POSTS]
     full = '# Equestrian Land Developments – full website content\n\nGenerated {} from {}\n\n'.format(TODAY, SITE)
     if live_notices():
-        full += '## Current notices\n\n' + '\n'.join('- {}{}'.format(n['message'].strip(), ' ({})'.format(notice_dates(n)) if notice_dates(n) else '') for n in live_notices()) + '\n\n---\n\n'
+        full += '## Current notices\n\n' + '\n'.join('- {}{}'.format(((n.get('title') or '').strip() + ': ' if (n.get('title') or '').strip() else '') + n['message'].strip(), ' ({})'.format(notice_dates(n)) if notice_dates(n) else '') for n in live_notices()) + '\n\n---\n\n'
     full += '\n\n---\n\n'.join(MARKDOWN[u] for u in order if u in MARKDOWN)
     open(os.path.join(OUT, 'llms-full.txt'), 'w', encoding='utf-8').write(full)
 
@@ -1283,6 +1286,8 @@ WILDCARDS = [('/news/category/', '/news/'), ('/news/tag/', '/news/'), ('/news/au
 def write_version():
     """Fingerprints of the admin-edited files, so the admin can tell when a saved change is live."""
     v = {k: hashlib.sha256(open(f, 'rb').read()).hexdigest()[:16] for k, f in (('shop', SHOP_FILE), ('notices', NOTICES_FILE))}
+    v['pages'] = {os.path.basename(f): hashlib.sha256(open(f, 'rb').read()).hexdigest()[:16]
+                  for f in sorted(glob.glob(os.path.join(ROOT, 'content', 'pages', '*.md')))}
     v['built'] = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
     json.dump(v, open(os.path.join(OUT, 'version.json'), 'w'))
 
