@@ -38,7 +38,7 @@
 
   "chat": {
     "_help": "Website chat assistant. With 'endpoint' blank it runs in TRIAL mode: instant answers from the FAQ and pages, no AI, no cost. To switch on the AI assistant, add ANTHROPIC_API_KEY to the eld-admin service on Render (see README) and put https://eld-admin.onrender.com/chat here",
-    "enabled": true,
+    "enabled": false,
     "endpoint": "",
     "assistant_name": "ELD Assistant",
     "greeting": "G'day! I'm the ELD website assistant. Ask me about arena construction, surfaces, maintenance or the Spread-a-bar®.",
