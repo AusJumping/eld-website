@@ -1,4 +1,16 @@
 {
   "_help": "Notices shown in a banner across the top of the website (e.g. Christmas closures). Edit these in the website admin (Notices tab). Dates are YYYY-MM-DD in Queensland time; leave start blank to show straight away and end blank to show until removed.",
-  "notices": []
+  "notices": [
+    {
+      "id": "807907cf",
+      "enabled": true,
+      "message": "Test",
+      "link_text": "",
+      "link_url": "",
+      "style": "info",
+      "where": "all",
+      "start": "",
+      "end": ""
+    }
+  ]
 }
